@@ -118,6 +118,7 @@
     </div>
   </header>
 
+  <div class="warnbox" style="margin:0 0 10px" id="guestBar" hidden>Guest workout from a shared link. Your own setup is untouched. <button class="small" id="guestExit">Back to my workout</button></div>
   <div class="card now" id="nowCard">
     <div class="slot" id="slotLbl">Ready</div>
     <div class="ex" id="exName">Press Start</div>
@@ -324,10 +325,17 @@
   }
   function cueBase(c){ c=c||""; const i=c.lastIndexOf("·"); if(i>=0) return c.slice(0,i).trim(); return (c.length<=24&&/\d/.test(c))?"":c; }
   function cueDose(c){ c=c||""; const i=c.lastIndexOf("·"); if(i>=0) return c.slice(i+1).trim(); return (c.length<=24&&/\d/.test(c))?c.trim():""; }
-  function saveUser(){ store.set("kb45_lib_v2",user); }
-  function saveSettings(){ store.set("kb45_set_v2",settings); }
+  // Guest workouts (from someone else's link) run on a temporary copy that is never saved,
+  // except the chain, which is shared with your real settings.
+  let guest=null;   // {user, settings} = your real data while a guest workout is loaded
+  function saveUser(){ if(!guest) store.set("kb45_lib_v2",user); }
+  function saveSettings(){ store.set("kb45_set_v2", guest ? guest.settings : settings); }
 
   // ---------- Plan generation (seeded so the mix is stable) ----------
+  // A fresh mix every day: the seed comes from the date unless "New mix" was tapped today
+  function todayKey(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function dailySeed(k){ let h=2166136261; for(const ch of k){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return (h%999983)+1; }
+  function curSeed(){ return settings.seedDay===todayKey() ? settings.seed : dailySeed(todayKey()); }
   function rng(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s>>>=0; s^=s>>>17; s^=s<<5; s>>>=0; return s/4294967296; }; }
   function expand(x){ return x.sided ? [[x.name+" — Left",x.cue,x.tag,x.id],[x.name+" — Right",x.cue,x.tag,x.id]] : [[x.name,x.cue,x.tag,x.id]]; }
 
@@ -343,7 +351,7 @@
     const poolSlots=pool.reduce((a,u)=>a+u.length,0);
     const reps=Math.max(1,Math.ceil(need/poolSlots));
     let units=[]; for(let r=0;r<reps;r++) units=units.concat(pool);
-    const R=rng(settings.seed*7919 + (settings.easy?1:0) + slots*31);
+    const R=rng(curSeed()*7919 + (settings.easy?1:0) + slots*31);
     let best=null,bestBad=1e9;
     for(let t=0;t<300;t++){
       const u=units.slice(); for(let i=u.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[u[i],u[j]]=[u[j],u[i]];}
@@ -747,7 +755,7 @@
       P("There is no app to install, although the site does save your preferences on your device."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
       P("All of your preferences are saved on your device."),
-      el("p",{className:"ok",textContent:"Version 1.2"}),
+      el("p",{className:"ok",textContent:"Version 1.3"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -762,7 +770,7 @@
   function b32dec(str){ const out=[]; let bits=0,val=0; for(const ch of str){ const i=B32.indexOf(ch); if(i<0) throw new Error("bad"); val=(val<<5)|i; bits+=5; if(bits>=8){ out.push((val>>>(bits-8))&255); bits-=8; } } return new Uint8Array(out); }
   function exportCode(withChain){
     const custom=user.custom.map(c=>({id:c.id,name:c.name,cue:c.cue,mode:c.mode,sided:c.sided,freq:c.freq}));
-    const payload={v:1,s:{len:settings.len,int:settings.int,easy:!!settings.easy,seed:settings.seed,scale:settings.scale!==false},o:user.over,c:custom};
+    const payload={v:1,s:{len:settings.len,int:settings.int,easy:!!settings.easy,seed:curSeed(),scale:settings.scale!==false},o:user.over,c:custom};
     if(withChain){ payload.h=hist(); payload.g=!!settings.grace; }
     return "w"+b32enc(new TextEncoder().encode(JSON.stringify(payload)));
   }
@@ -774,7 +782,7 @@
   }
   function applyCode(p){
     user={over:p.o||{},custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))}; saveUser();
-    Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,seed:+p.s.seed||1,scale:p.s.scale!==false});
+    Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false});
     if(p.h && typeof p.h==="object"){ const h=hist(); Object.keys(p.h).forEach(k=>{ const e=p.h[k]; if(/^\d{4}-\d\d-\d\d$/.test(k) && e && e.b>=0 && e.b<=3) h[k]={b:+e.b, m:+e.m||0}; }); trimHist(); settings.grace=!!p.g; }
     else if(Array.isArray(p.d)){ const h=hist(); p.d.forEach(k=>{ if(/^\d{4}-\d\d-\d\d$/.test(k) && !h[k]) h[k]={b:1,m:0}; }); settings.grace=!!p.g; }
     saveSettings(); try{ $("scaleChk").checked=settings.scale!==false; $("graceChk").checked=!!settings.grace; }catch(e){}
@@ -893,21 +901,50 @@
   }); }
   $("icoShare").onclick=openShare;
   $("finishShare").onclick=openShare;
+  $("guestExit").onclick=()=>endGuest(false);
   $("fixChainBtn").onclick=openChainEditor;
   $("fixChainFinish").onclick=openChainEditor;
 
   // ---------- Open a shared workout from the link ----------
+  function isReturningUser(){ return Object.keys(user.over||{}).length>0 || (user.custom||[]).length>0 || Object.keys(hist()).length>0; }
+  function startGuest(p){
+    if(guest) endGuest(true);
+    hist();                                   // make sure the real chain is set up before copying
+    guest={user, settings};
+    user={over:JSON.parse(JSON.stringify(p.o||{})), custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))};
+    settings=Object.assign({}, guest.settings, {len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false});
+    settings.hist=guest.settings.hist;        // finishing still counts toward your own chain
+    $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int); $("scaleChk").checked=settings.scale!==false;
+    $("guestBar").hidden=false; reset();
+  }
+  function endGuest(quiet){
+    if(!guest) return;
+    user=guest.user; settings=guest.settings; guest=null;
+    $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int); $("scaleChk").checked=settings.scale!==false;
+    $("guestBar").hidden=true; if(!quiet) reset();
+  }
   function checkHash(){
     const h=location.hash.replace(/^#/,""); if(!/^w[a-z2-7]+$/.test(h)) return;
     const p=parseCode(h); if(!p) return;
     const clear=()=>{ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){ try{ location.hash=""; }catch(_){} } };
     const n=Math.round(p.s.len*60/p.s.int);
+    if(p.h){ clear(); return; }               // setup codes (with a chain) are loaded from the share menu, not links
+    if(!isReturningUser()){                   // new here: their first workout is the one they were sent
+      applyCode(p); clear();
+      openModal("Welcome to KB Catalyst",b=>{
+        b.append(P(`You've been sent a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each. It's loaded and ready.`),
+                 P("Press Start when your bell is ready. You can make it your own later in the exercise library."));
+        const ok=el("button",{className:"small primary",textContent:"Let's go"}); ok.onclick=closeModal;
+        b.append(el("div",{className:"btnrow"},ok));
+      });
+      return;
+    }
     openModal("Shared workout",b=>{
-      b.append(P(`Someone shared a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day with you: about ${n} exercises at ${p.s.int} seconds each.`),
-               P("Loading it replaces your current library and settings on this device."));
-      const y=el("button",{className:"small primary",textContent:"Load this workout"}); y.onclick=()=>{ applyCode(p); clear(); closeModal(); };
+      b.append(P(`Someone shared a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each.`));
+      const once=el("button",{className:"small primary",textContent:"Do this workout"}); once.onclick=()=>{ startGuest(p); clear(); closeModal(); };
+      const adopt=el("button",{className:"small",textContent:"Make it my setup"}); adopt.onclick=()=>{ endGuest(true); applyCode(p); clear(); closeModal(); };
       const no=el("button",{className:"small",textContent:"Not now"}); no.onclick=()=>{ clear(); closeModal(); };
-      b.append(el("div",{className:"btnrow"},y,no));
+      b.append(P("“Do this workout” runs it once and counts toward your chain. Your own setup stays as it is."), el("div",{className:"btnrow"},once,adopt,no));
     });
   }
   window.addEventListener("hashchange",checkHash);
@@ -917,7 +954,7 @@
   $("skipBtn").onclick=()=>{ unlockAudio(); if(prerolling){ prerolling=false; try{ speechSynthesis.cancel(); }catch(e){} go(0,false); return; } if(idx<0){ if(!running) start(); return; } go(idx+1,false); };
   $("backBtn").onclick=()=>{ if(idx>0) go(idx-1,false); };
   $("resetBtn").onclick=reset;
-  $("mixBtn").onclick=()=>{ settings.seed=(settings.seed%1000000)+1+Math.floor(Math.random()*997); saveSettings(); reset(); };
+  $("mixBtn").onclick=()=>{ settings.seed=1+Math.floor(Math.random()*999983); settings.seedDay=todayKey(); saveSettings(); reset(); };
   $("easyBtn").onclick=()=>{ settings.easy=!settings.easy; saveSettings(); if(inProgress()){ dirty=true; $("pending").hidden=false; renderHead(); } else reset(); };
   $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
   $("voiceChk").checked=settings.voice; $("beepChk").checked=settings.beep; $("scrollChk").checked=!!settings.scroll;
