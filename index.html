@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kettlebell Catalyst</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#181b22; --line:#2a2f3a; --text:#eef1f6; --muted:#8b93a3;
+    --accent:#f2a33a; --accent2:#4fc3a1; --warn:#ef5b5b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px);}
+  .wrap{max-width:640px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+  h1{font-size:20px;margin:0;letter-spacing:.3px}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px;font-variant-numeric:tabular-nums}
+  .icons{display:flex;gap:6px;flex:none}
+  .icons button{width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:12px;color:var(--text)}
+  .icons svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;z-index:50}
+  .modal[hidden]{display:none}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:18px 18px 0 0;max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:16px 18px calc(env(safe-area-inset-bottom) + 20px)}
+  .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .mhead b{font-size:18px}
+  .mhead button{padding:6px 12px;font-size:15px}
+  .sheet p{color:#c9cfdb;font-size:15px;line-height:1.5;margin:8px 0}
+  .sheet h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:18px 0 6px}
+  .sheet textarea{width:100%;font:13px ui-monospace,Menlo,monospace;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical}
+  .sheet img{width:100%;max-width:360px;border-radius:12px;display:block;margin:8px 0;border:1px solid var(--line)}
+  .sheet ol{border:none}.sheet ol li{border:none;padding:3px 0;display:list-item;list-style:decimal;margin-left:18px;color:#c9cfdb}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .ok{color:var(--accent2);font-size:13px}
+  .meta{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .now{text-align:center}
+  .slot{color:var(--text);font-size:26px;font-weight:800;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+  .slot .of{color:var(--muted);font-weight:600;font-size:18px}
+  .slot.ready{font-size:20px}
+  .slot .rest{display:block;color:var(--muted);font-size:13px;font-weight:500;margin-top:2px}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;text-transform:none;letter-spacing:0}
+  .ex{font-size:clamp(26px,7vw,40px);font-weight:700;line-height:1.15;margin:10px 0 6px}
+  .cue{color:var(--muted);font-size:15px;min-height:20px}
+  .clock{font-size:clamp(64px,22vw,120px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin:14px 0 6px;color:var(--accent)}
+  .clock.low{color:var(--warn)}
+  .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
+  .bar>i{display:block;height:100%;width:0;background:var(--accent2);transition:width .2s linear}
+  .next{margin-top:14px;font-size:15px;color:var(--muted)}
+  .next b{color:var(--text)}
+  .next .dose{color:var(--accent2);font-weight:600}
+  .controls{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin:14px 0}
+  button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 10px;font-size:16px;cursor:pointer}
+  button:active{transform:scale(.98)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#1a1205;font-weight:700}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+  .row label{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  select,input[type=text]{font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+  .small{padding:8px 12px;font-size:14px}
+  #easyBtn.on{background:var(--accent2);border-color:var(--accent2);color:#06261d;font-weight:700}
+  h2{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:22px 0 8px}
+  ol,.lib{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  li{display:flex;gap:10px;padding:9px 12px;border-top:1px solid var(--line);font-size:14px;align-items:center}
+  li:first-child{border-top:none}
+  li .n{color:var(--muted);width:24px;text-align:right;font-variant-numeric:tabular-nums;flex:none}
+  li .nm{flex:1 1 120px}
+  .lib li{flex-wrap:wrap}
+  .lib li .ctl{flex-basis:100%;display:flex;align-items:center;gap:8px;padding-left:30px;flex-wrap:wrap}
+  .lib li .ctl:empty{display:none}
+  .step.dose span.dv{min-width:70px;color:var(--accent2);font-weight:600}
+  .step.dose span.dv.edited{text-decoration:underline}
+  .step.often{margin-left:auto}
+  .step .lab{min-width:0;color:var(--muted);font-size:12px;margin-right:2px}
+  .dosebtn{padding:4px 9px;font-size:13px;border-radius:8px;color:var(--accent2);border-style:dashed}
+  .dosebtn.edited{border-style:solid;border-color:var(--accent2)}
+  .doseinp{width:110px;font-size:13px;padding:4px 6px}
+  .rst{padding:4px 8px;font-size:13px;border-radius:8px;color:var(--muted)}
+  li .t{color:var(--muted);font-size:12px}
+  li.done{opacity:.4}
+  li.cur{background:#232836}
+  li.cur .nm{color:var(--accent);font-weight:600}
+  .note{color:var(--muted);font-size:13px;line-height:1.45;margin-top:12px}
+  .warnbox{color:var(--accent);font-size:13px;margin:8px 0 0}
+  .finish{display:none;text-align:center;padding:30px 10px}
+  .finish .big{font-size:34px;font-weight:800;color:var(--accent2)}
+  .chainbig{font-size:22px;letter-spacing:2px;margin:10px 0 4px;line-height:1.3}
+  .sharebox{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.45;margin:8px 0;word-break:break-word}
+  details{margin-top:22px}
+  summary{cursor:pointer;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:6px 0;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";}
+  details[open] summary::before{content:"▾ ";}
+  .grp{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px}
+  .lib li.off .nm{color:var(--muted);text-decoration:line-through}
+  .lib input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:var(--accent2)}
+  .step{display:flex;align-items:center;gap:4px;flex:none}
+  .step button{padding:4px 10px;font-size:15px;border-radius:8px}
+  .step span{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+  .lr{font-size:10px;border:1px solid var(--line);border-radius:6px;padding:1px 5px;color:var(--muted);margin-left:6px}
+  .del{padding:4px 9px;font-size:14px;border-radius:8px;color:var(--warn)}
+  .addform{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px dashed var(--line);border-radius:12px}
+  .addform .r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .addform input[type=text]{flex:1;min-width:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="title">Kettlebell Catalyst</h1>
+      <div class="sub"><span id="sub">45 min · Full day</span> · <span id="meta">0:00 / 45:00</span></div>
+    </div>
+    <div class="icons">
+      <button id="icoHealth" aria-label="Health disclaimer" title="Health disclaimer"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
+      <button id="icoAbout" aria-label="About and feedback" title="About & feedback"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/></svg></button>
+      <button id="icoShare" aria-label="Share and install" title="Share & install"><svg viewBox="0 0 24 24"><path d="M8.5 9.5H6.5v11h11v-11h-2"/><path d="M12 14.5V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/></svg></button>
+    </div>
+  </header>
+
+  <div class="card now" id="nowCard">
+    <div class="slot" id="slotLbl">Ready</div>
+    <div class="ex" id="exName">Press Start</div>
+    <div class="cue" id="exCue"></div>
+    <div class="clock" id="clock">0:45</div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="next" id="nextLbl"></div>
+  </div>
+  <div class="card finish" id="finish">
+    <div class="big">Done 💪</div>
+    <div class="note" id="finishNote"></div>
+    <div class="chainbig" id="finishChain"></div>
+    <div class="btnrow" style="justify-content:center"><button class="small primary" id="finishShare">Share today's workout</button></div>
+  </div>
+
+  <div class="controls">
+    <button id="backBtn" aria-label="Previous">◀︎ Back</button>
+    <button id="startBtn" class="primary">Start</button>
+    <button id="skipBtn" aria-label="Next">Skip ▶︎</button>
+  </div>
+
+  <div class="row">
+    <label>Length
+      <select id="lenSel">
+        <option value="10">10 min</option>
+        <option value="20">20 min</option>
+        <option value="30">30 min</option>
+        <option value="45" selected>45 min</option>
+        <option value="60">60 min</option>
+      </select>
+    </label>
+    <label>Interval
+      <select id="intSel">
+        <option value="30">30 s</option>
+        <option value="40">40 s</option>
+        <option value="45" selected>45 s</option>
+        <option value="60">60 s</option>
+      </select>
+    </label>
+    <label><input type="checkbox" id="scaleChk" checked> Scale reps to interval</label>
+  </div>
+  <div class="row">
+    <button class="small" id="easyBtn">Easy day: Off</button>
+    <button class="small" id="mixBtn">New mix</button>
+    <button class="small" id="resetBtn">Reset</button>
+    <label><input type="checkbox" id="voiceChk" checked> Voice</label>
+    <label><input type="checkbox" id="beepChk" checked> Beeps</label>
+    <label><input type="checkbox" id="scrollChk"> Auto-scroll list</label>
+    <label><input type="checkbox" id="callChk" checked> Call out each set</label>
+    <label title="One missed day in a row won't break your chain"><input type="checkbox" id="graceChk"> Grace days</label>
+  </div>
+  <div class="row">
+    <label>Voice <select id="voiceSel" style="max-width:240px"><option value="">Default</option></select></label>
+    <button class="small" id="testVoice">Test</button>
+  </div>
+  <div class="note" id="voiceDiag" hidden></div>
+  <div class="warnbox" id="pending" hidden>Changes will apply when you reset or finish this workout.</div>
+
+  <div class="note">Easy, steady pace: do the suggested reps, then rest for the rest of the interval. Left/right moves always come in pairs. Your mix, settings and library are saved on this device. <b>Easy day</b> builds the session from exercises marked for easy days; use a lighter bell for swings and get-ups.</div>
+
+  <h2>Today's order</h2>
+  <ol id="list"></ol>
+
+  <details id="libBox">
+    <summary id="libSum">Exercise library</summary>
+    <div class="note" style="margin-top:4px">Untick anything you never want. Use the green − / + to change reps or time, and "often" − / + to set how often it comes up. Reps are set for a 45-second interval and scale to the one you pick. The timer always fills the full length from whatever is on, repeating exercises if needed.</div>
+    <div id="libGroups"></div>
+
+    <div class="addform">
+      <b style="font-size:14px">Add your own</b>
+      <input type="text" id="addName" placeholder="Exercise name (e.g. Bottoms-Up Press)" maxlength="50">
+      <input type="text" id="addCue" placeholder="Cue / reps (optional)" maxlength="80">
+      <div class="r">
+        <label style="font-size:14px;color:var(--muted)"><input type="checkbox" id="addSided"> Left/Right pair</label>
+        <select id="addMode">
+          <option value="both">Full &amp; easy days</option>
+          <option value="full">Full days only</option>
+          <option value="easy">Easy days only</option>
+          <option value="warmup">Warm-up</option>
+        </select>
+        <button class="small" id="addBtn">Add</button>
+      </div>
+    </div>
+    <div class="row"><button class="small" id="restoreBtn">Restore default library</button></div>
+  </details>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="mhead"><b id="mTitle"></b><button id="mClose" aria-label="Close">✕</button></div>
+    <div id="mBody"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+
+  // ---------- Default library ----------
+  // mode: warmup | both | full | easy ; freq = times per session ; sided = L/R pair
+  const D=(id,name,cue,tag,mode,sided,freq)=>({id,name,cue,tag,mode,sided:!!sided,freq:freq||1});
+  const DEFAULTS=[
+    D("halo","Halos","Slow circles around the head, both directions · 5 each way","warm-up","warmup"),
+    D("atw","Around-the-World Passes","Pass the bell around your waist, switching direction halfway · 10 passes","warm-up","warmup"),
+    D("pry","Prying Goblet Squat","Sit deep, push knees out with elbows · 5 slow reps","warm-up","warmup"),
+    D("kbdl","Kettlebell Deadlift","Hinge, flat back, stand tall · 8 reps","warm-up","warmup"),
+    D("bridge","Glute Bridge","Bell on hips, squeeze at the top · 10 reps","warm-up","warmup"),
+
+    D("swing2","2-Hand Swings","Snap the hips, float the bell · 10 reps","swing","both",0,6),
+    D("tgu","Turkish Get-Up","Slow and controlled, eyes on the bell · 1 rep","TGU","both",1,3),
+    D("swing1","1-Hand Swings","Keep shoulders square · 8 reps","swing","both",1),
+    D("h2h","Hand-to-Hand Swings","Switch hands at the float · 10 total","swing","both"),
+    D("gsq","Goblet Squat","Chest up, full depth · 8 reps","squat","both"),
+    D("row","Bent-Over Row","Flat back, pull to the hip · 8 reps","pull","both",1),
+    D("sdl","Suitcase Deadlift","Bell at your side, don't lean · 8 reps","hinge","both",1),
+    D("slrdl","Single-Leg RDL","Slow, hips level · 5 reps","hinge","both",1),
+    D("rlunge","Goblet Reverse Lunge","Alternate legs · 6 total","lunge","both"),
+    D("llunge","Goblet Lateral Lunge","Alternate sides · 6 total","lunge","both"),
+    D("scarry","Suitcase Carry","Walk tall, resist the lean · 30 s","carry","both",1),
+    D("rcarry","Rack Carry","Bell in rack, ribs down · 30 s","carry","both",1),
+    D("wmill","Windmill","Eyes on the bell, hips push back · 3 slow reps","mobility","both",1),
+    D("ptp","Plank Pull-Through","Drag the bell side to side · 10 total","core","both"),
+    D("rtwist","Russian Twist","Bell to each hip, slow · 10 total","core","both"),
+    D("deadbug","Dead Bug","Bell held overhead, opposite leg moves · 10 total","core","both"),
+    D("hollow","Hollow Hold","Low back pressed down · 20–30 s","core","both"),
+    D("curl","Goblet Curl","Horns grip, no swinging · 10 reps","arms","both"),
+    D("fig8","Figure-8s","Pass between the legs, hinge stance · 10 passes","mobility","both"),
+    D("gmarch","Goblet March","Bell at chest, high slow knees · 30 s","conditioning","both"),
+
+    D("clean","Clean","Bell hugs the body, soft landing in rack · 5 reps","ballistic","full",1),
+    D("hpull","High Pull","Elbow high and back · 6 reps","ballistic","full",1),
+    D("snatch","Snatch","Punch through at the top · 5 reps","ballistic","full",1),
+    D("press","Overhead Press","Strict, glutes tight · 5 reps","press","full",1),
+    D("hkpress","Half-Kneeling Press","Down knee same side as the bell · 5 reps","press","full",1),
+    D("fpress","Floor Press","Pause on the floor · 6 reps","press","full",1),
+    D("rsq","Racked Squat","Bell in rack, brace hard · 5 reps","squat","full",1),
+    D("ocarry","Overhead Carry","Arm locked, biceps by ear · 20–30 s","carry","full",1),
+    D("pushup","Push-Ups","Steady tempo · 8–10 reps","press","full"),
+    D("thruster","Goblet Thruster","Squat and press in one move · 6 reps","squat","full"),
+
+    D("smarch","Suitcase March","Bell at your side, slow high knees · 30 s","carry","easy",1),
+    D("armbar","Arm Bar","On your back, bell pressed up, roll gently to the side · 30 s","mobility","easy",1),
+    D("splank","Side Plank","On elbow, hips high · 20–30 s","core","easy",1),
+    D("birddog","Bird Dog","Opposite arm and leg, slow · 6 reps","core","easy"),
+    D("hipflex","Half-Kneeling Hip Flexor Stretch","Tuck the pelvis, breathe · 30 s","mobility","easy",1),
+    D("cossack","Cossack Squat (bodyweight)","Shift side to side, only as deep as is comfortable · 4 reps","mobility","easy"),
+    D("bwsplit","Bodyweight Split Squat","Slow and controlled · 6 reps","lunge","easy",1),
+    D("gcarry","Goblet Carry","Bell at chest, walk tall · 30 s","carry","easy"),
+    D("incpush","Incline Push-Ups","Hands on a bench or counter · 8–10 reps","press","easy"),
+    D("gsqhold","Goblet Squat Hold","Sit in the bottom, chest up · 20–30 s","squat","easy")
+  ];
+
+  // ---------- Storage ----------
+  const store={
+    get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+    set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+  };
+  // user data: overrides {id:{on,freq,mode}} + custom [{...}]
+  let user = store.get("kb45_lib_v2",{over:{},custom:[]});
+  let settings = store.get("kb45_set_v2",{len:45,int:45,easy:false,voice:true,beep:true,seed:1});
+
+  function library(){
+    return DEFAULTS.concat(user.custom).map(x=>{
+      const o=user.over[x.id]||{};
+      const def=parseDose(cueDose(x.cue));
+      let base=def;
+      if(def && o.base && isFinite(o.base.n)) base=Object.assign({},def,{n:o.base.n, n2:(o.base.n2!=null?o.base.n2:null)});
+      else if(def && typeof o.dose==="string"){ const d=parseDose(o.dose); if(d) base=d; }   // older free-text edits
+      const show = base ? scaleDose(base, NOSCALE.has(x.id)) : null;
+      const b=cueBase(x.cue);
+      const cue = show ? (b ? b+" · "+fmtDose(show) : fmtDose(show)) : x.cue;
+      const edited = !!(def && (o.base || typeof o.dose==="string"));
+      return Object.assign({},x,{on:o.on!==false, freq:o.freq||x.freq, mode:o.mode||x.mode, cue, doseEdited:edited, dose:show, baseDose:base, defDose:def});
+    });
+  }
+  // ---- Reps / time: defaults are written for a 45-second interval and scale to the one you pick ----
+  const NOSCALE=new Set(["tgu","wmill"]);
+  function parseDose(t){
+    const m=String(t||"").trim().match(/^(\d+(?:\.\d+)?)(?:\s*[–-]\s*(\d+(?:\.\d+)?))?\s*(.*)$/);
+    if(!m) return null;
+    const unit=(m[3]||"").trim();
+    return {n:+m[1], n2:m[2]!=null?+m[2]:null, unit, timed:/^s(ec(ond)?s?)?$/i.test(unit)};
+  }
+  function scaleDose(d,fixed){
+    const f = (settings.scale===false || fixed) ? 1 : settings.int/45;
+    if(d.timed){
+      const cap=Math.max(10, settings.int-10);
+      const r=v=>Math.min(cap, Math.max(10, Math.round(v*f/5)*5));
+      let n=r(d.n), n2=d.n2!=null?r(d.n2):null; if(n2!=null && n2<=n) n2=null;
+      return {n, n2, unit:"s", timed:true};
+    }
+    const r=v=>Math.max(1, Math.round(v*f));
+    let n=r(d.n), n2=d.n2!=null?r(d.n2):null; if(n2!=null && n2<=n) n2=null;
+    return {n, n2, unit:d.unit, timed:false};
+  }
+  function fmtDose(d){
+    if(!d) return "";
+    const num = d.n + (d.n2!=null ? "–"+d.n2 : "");
+    if(d.timed) return num+" s";
+    let u=d.unit||"reps"; if(d.n===1 && d.n2==null) u=u.replace(/\breps\b/,"rep").replace(/\bpasses\b/,"pass");
+    return num+" "+u;
+  }
+  function cueBase(c){ c=c||""; const i=c.lastIndexOf("·"); if(i>=0) return c.slice(0,i).trim(); return (c.length<=24&&/\d/.test(c))?"":c; }
+  function cueDose(c){ c=c||""; const i=c.lastIndexOf("·"); if(i>=0) return c.slice(i+1).trim(); return (c.length<=24&&/\d/.test(c))?c.trim():""; }
+  function saveUser(){ store.set("kb45_lib_v2",user); }
+  function saveSettings(){ store.set("kb45_set_v2",settings); }
+
+  // ---------- Plan generation (seeded so the mix is stable) ----------
+  function rng(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s>>>=0; s^=s>>>17; s^=s<<5; s>>>=0; return s/4294967296; }; }
+  function expand(x){ return x.sided ? [[x.name+" — Left",x.cue,x.tag,x.id],[x.name+" — Right",x.cue,x.tag,x.id]] : [[x.name,x.cue,x.tag,x.id]]; }
+
+  function buildPlan(){
+    const slots=Math.max(1,Math.round(settings.len*60/settings.int));
+    const lib=library().filter(x=>x.on);
+    const modeOk = settings.easy ? (m=>m==="both"||m==="easy") : (m=>m==="both"||m==="full");
+    const warm=[]; lib.filter(x=>x.mode==="warmup").forEach(x=>warm.push(...expand(x)));
+    const warmUse=warm.slice(0,Math.min(warm.length, Math.floor(slots/3)));
+    const need=slots-warmUse.length;
+    const pool=[]; lib.filter(x=>modeOk(x.mode)).forEach(x=>{ for(let i=0;i<x.freq;i++) pool.push(expand(x)); });
+    if(!pool.length) return {plan:warmUse, empty:true, slots};
+    const poolSlots=pool.reduce((a,u)=>a+u.length,0);
+    const reps=Math.max(1,Math.ceil(need/poolSlots));
+    let units=[]; for(let r=0;r<reps;r++) units=units.concat(pool);
+    const R=rng(settings.seed*7919 + (settings.easy?1:0) + slots*31);
+    let best=null,bestBad=1e9;
+    for(let t=0;t<300;t++){
+      const u=units.slice(); for(let i=u.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[u[i],u[j]]=[u[j],u[i]];}
+      // fill greedily; prefer singles for the last odd slot
+      const seq=[]; const rest=u.slice(); let used=0;
+      while(used<need && rest.length){
+        const left=need-used; let k=0;
+        if(rest[0].length>left){ k=rest.findIndex(x=>x.length<=left); if(k<0) k=0; }
+        const unit=rest.splice(k,1)[0].slice(0,left); seq.push(unit); used+=unit.length;
+      }
+      let bad=0; for(let i=1;i<seq.length;i++){ if(seq[i][0][3]===seq[i-1][0][3]) bad+=1; else if(seq[i][0][2]===seq[i-1][0][2] && seq[i][0][2]!=="swing") bad+=0.2; }
+      if(bad<bestBad){bestBad=bad;best=seq;} if(bad===0) break;
+    }
+    return {plan:warmUse.concat(best.flat()), empty:false, slots};
+  }
+
+  // ---------- Timer state ----------
+  let prerolling=false;
+  let plan=[], built=null, idx=-1, running=false, endAt=0, remainMs=0, timer=null, saidNext=false, lastBeep=null, dirty=false;
+  let wakeLock=null, actx=null;
+  const fmt=s=>{ s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
+  const total=()=>plan.length*settings.int;
+  const speak=n=>n.replace(" — "," ");
+  // dose = the reps/time part of the cue (after the last "·"); short custom cues count too
+  function dose(e){ const c=(e&&e[1])||""; const i=c.lastIndexOf("·"); if(i>=0) return c.slice(i+1).trim(); return (c.length<=24 && /\d/.test(c)) ? c.trim() : ""; }
+  function sayDose(e){ return dose(e).replace(/(\d)\s*[–-]\s*(\d)/g,"$1 to $2").replace(/(\d)\s*s\b/g,"$1 seconds").replace(/×/g," times "); }
+  function announce(e){ const d=sayDose(e); return (speak(e[0]) + (d? ", "+d : "")).replace(/\breps\b/gi,"repetitions").replace(/\brep\b/gi,"repetition"); }
+  function nextHTML(label,e){ $("nextLbl").innerHTML=label+` <b></b><span class="dose"></span>`; $("nextLbl").querySelector("b").textContent=e[0]; const d=dose(e); $("nextLbl").querySelector(".dose").textContent = d ? " · "+d : ""; }
+
+  function rebuild(){ built=buildPlan(); plan=built.plan; dirty=false; $("pending").hidden=true; }
+
+  function renderList(){
+    const ol=$("list"); ol.innerHTML="";
+    plan.forEach((e,i)=>{
+      const li=document.createElement("li");
+      if(i<idx) li.className="done"; if(i===idx) li.className="cur";
+      li.innerHTML=`<span class="n">${i+1}</span><span class="nm"></span><span class="t"></span>`;
+      li.querySelector(".nm").textContent=e[0]; li.querySelector(".t").textContent=e[2];
+      ol.appendChild(li);
+    });
+  }
+  function renderHead(){
+    $("easyBtn").textContent=settings.easy?"Easy day: On":"Easy day: Off";
+    $("easyBtn").classList.toggle("on",settings.easy);
+    $("sub").textContent=settings.len+" min · "+(settings.easy?"Easy day":"Full day");
+  }
+  function renderNow(){
+    renderHead();
+    if(idx<0){
+      $("slotLbl").className="slot ready"; $("slotLbl").innerHTML=`Ready<span class="rest">${plan.length} intervals · ${fmt(total())}</span>`;
+      $("exName").textContent= built.empty ? "No exercises on" : "Press Start";
+      $("exCue").textContent= built.empty ? "Switch some on in the exercise library below." : "Warm-up first, then the mix.";
+      $("clock").textContent=fmt(settings.int); $("clock").classList.remove("low");
+      if(plan[0]) nextHTML("First up:",plan[0]); else $("nextLbl").textContent="";
+      $("bar").style.width="0%";
+      $("meta").textContent=`0:00 / ${fmt(total())}`;
+      return;
+    }
+    const e=plan[idx], nx=plan[idx+1];
+    $("slotLbl").className="slot"; $("slotLbl").innerHTML=`${idx+1}<span class="of"> / ${plan.length}</span><span class="tag"></span>`;
+    $("slotLbl").querySelector(".tag").textContent=e[2];
+    $("exName").textContent=e[0]; $("exCue").textContent=e[1];
+    if(nx) nextHTML("Next:",nx);
+    else $("nextLbl").textContent="Last one: finish strong";
+  }
+  function tick(){
+    if(prerolling){
+      const rem=(endAt-performance.now())/1000;
+      $("clock").textContent=fmt(rem); $("clock").classList.toggle("low",rem<=3); $("bar").style.width="0%";
+      const whole=Math.ceil(rem);
+      if(whole<=3 && whole>=1 && lastBeep!==whole){ lastBeep=whole; beep(660,0.09); }
+      if(rem<=0){ prerolling=false; lastBeep=null; go(0,true,true); }
+      return;
+    }
+    const rem = running ? (endAt-performance.now())/1000 : remainMs/1000;
+    const c=$("clock"); c.textContent=fmt(rem); c.classList.toggle("low", rem<=5);
+    $("bar").style.width=(100*(1-rem/settings.int)).toFixed(1)+"%";
+    $("meta").textContent=`${fmt(idx*settings.int+(settings.int-Math.max(rem,0)))} / ${fmt(total())}`;
+    if(!running) return;
+    const whole=Math.ceil(rem);
+    if(whole<=3 && whole>=1 && lastBeep!==whole){ lastBeep=whole; beep(660,0.09); }
+    if(!saidNext && rem<=10 && plan[idx+1]){ saidNext=true; say("Set "+(idx+2)+", "+announce(plan[idx+1])); }
+    if(rem<=0) go(idx+1,true);
+  }
+  function go(i,auto,quiet){
+    if(i>=plan.length){ finish(); return; }
+    idx=Math.max(0,i); saidNext=false; lastBeep=null;
+    remainMs=settings.int*1000; endAt=performance.now()+remainMs;
+    renderNow(); renderList();
+    if(running){ beep(auto?990:880,0.22); if(!quiet && settings.callStart!==false) say(announce(plan[idx])); }
+    const cur=document.querySelector("li.cur"); if(cur&&auto&&settings.scroll) cur.scrollIntoView({block:"nearest",behavior:"smooth"});
+    tick();
+  }
+  function start(){
+    if(!plan.length) return;
+    if(idx<0 && !prerolling){ startPreroll(); return; }
+    unlockAudio(); requestWake();
+    running=true; endAt=performance.now()+remainMs;
+    $("startBtn").textContent="Pause"; clearInterval(timer); timer=setInterval(tick,200);
+  }
+  function startPreroll(){
+    const first=plan[0], intro=`${settings.len} minute ${settings.easy?"easy":"full"} workout. ${plan.length} intervals, ${settings.int} seconds each.`;
+    voiceUnlocked=true;                     // the first phrase below is spoken inside this tap
+    prerolling=true; running=true; lastBeep=null;
+    endAt=performance.now()+15000;
+    $("slotLbl").className="slot ready"; $("slotLbl").innerHTML=`Get ready<span class="rest"></span>`; $("slotLbl").querySelector(".rest").textContent=intro;
+    $("exName").textContent=first[0]; $("exCue").textContent=first[1]; nextHTML("First up:",first);
+    $("startBtn").textContent="Cancel";
+    if(settings.voice && window.speechSynthesis){
+      try{
+        const ss=window.speechSynthesis; if(ss.speaking||ss.pending) ss.cancel(); ss.resume();
+        ss.speak(makeUtter("Set 1, "+announce(first)));
+        ss.speak(makeUtter(intro));
+        ss.speak(makeUtter("First up: Set 1, "+announce(first),{end:()=>{ if(prerolling){ const left=endAt-performance.now(); if(left>4500) endAt=performance.now()+4000; } }}));
+      }catch(e){}
+    } else endAt=performance.now()+10000;
+    unlockAudio(); requestWake();
+    clearInterval(timer); timer=setInterval(tick,200); tick();
+  }
+  function cancelPreroll(){ prerolling=false; running=false; try{ speechSynthesis.cancel(); }catch(e){} reset(); }
+  function pause(){ stopPlaybackMode(); running=false; remainMs=Math.max(0,endAt-performance.now()); $("startBtn").textContent="Resume"; clearInterval(timer); releaseWake(); tick(); }
+  function reset(){
+    stopPlaybackMode(); prerolling=false; running=false; clearInterval(timer); releaseWake(); idx=-1;
+    rebuild(); remainMs=settings.int*1000;
+    $("startBtn").textContent="Start"; $("finish").style.display="none"; $("nowCard").style.display="";
+    renderNow(); renderList(); renderLib();
+  }
+  function finish(){
+    running=false; clearInterval(timer); releaseWake();
+    beep(990,0.15); setTimeout(()=>beep(1320,0.3),180); say("Workout complete. Nice work."); setTimeout(stopPlaybackMode,4000);
+    $("nowCard").style.display="none"; $("finish").style.display="block";
+    markDone();
+    $("finishNote").textContent=`${plan.length} intervals · ${fmt(total())}. Day ${streak()} of your chain. Cool down with a walk and a few deep breaths.`;
+    $("finishChain").textContent=chainRow(14);
+    $("startBtn").textContent="Start"; idx=plan.length; renderList(); idx=-1;
+    $("meta").textContent=`${fmt(total())} / ${fmt(total())}`;
+    if(dirty){ rebuild(); renderList(); }
+  }
+  const inProgress=()=> idx>=0;
+  function changed(){ // settings/library changed
+    if(inProgress()){ dirty=true; $("pending").hidden=false; renderLib(); }
+    else reset();
+  }
+
+  // ---------- Library UI ----------
+  const GROUPS=[["warmup","Warm-up (start of every session)"],["both","Full & easy days"],["full","Full days only"],["easy","Easy days only"]];
+  function renderLib(){
+    const lib=library(); const box=$("libGroups"); box.innerHTML="";
+    $("libSum").textContent=`Exercise library · ${lib.filter(x=>x.on).length} of ${lib.length} on`;
+    GROUPS.forEach(([mode,label])=>{
+      const items=lib.filter(x=>x.mode===mode); if(!items.length) return;
+      const h=document.createElement("div"); h.className="grp"; h.textContent=label; box.appendChild(h);
+      const ul=document.createElement("ul"); ul.className="lib";
+      items.forEach(x=>{
+        const li=document.createElement("li"); if(!x.on) li.classList.add("off");
+        const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=x.on;
+        cb.onchange=()=>{ setOver(x.id,{on:cb.checked}); };
+        const nm=document.createElement("span"); nm.className="nm"; nm.textContent=x.name;
+        if(x.sided){ const b=document.createElement("span"); b.className="lr"; b.textContent="L/R"; nm.appendChild(b); }
+        li.append(cb,nm);
+        const ctl=document.createElement("div"); ctl.className="ctl"; li.appendChild(ctl);
+        if(x.dose){
+          const ds=document.createElement("span"); ds.className="step dose";
+          const m=document.createElement("button"); m.textContent="−"; m.setAttribute("aria-label","Fewer reps or less time for "+x.name);
+          const v=document.createElement("span"); v.className="dv"+(x.doseEdited?" edited":""); v.textContent=fmtDose(x.dose);
+          const p=document.createElement("button"); p.textContent="+"; p.setAttribute("aria-label","More reps or more time for "+x.name);
+          const f = (settings.scale===false || NOSCALE.has(x.id)) ? 1 : settings.int/45;
+          const bump=dir=>{
+            const step = x.dose.timed ? 5 : 1;
+            const shown = x.dose.n + dir*step;
+            if(shown < (x.dose.timed?10:1)) return;
+            if(x.dose.timed && shown > Math.max(10,settings.int-10)) return;
+            const span = x.dose.n2!=null ? (x.dose.n2 - x.dose.n) : null;
+            const nb = shown / f, n2b = span!=null ? (shown+span)/f : null;
+            setOver(x.id,{base:{n:+nb.toFixed(2), n2: n2b!=null ? +n2b.toFixed(2) : null}, dose:undefined});
+          };
+          m.onclick=()=>bump(-1); p.onclick=()=>bump(1);
+          ds.append(m,v,p); ctl.appendChild(ds);
+          if(x.doseEdited){ const r=document.createElement("button"); r.className="rst"; r.textContent="↺"; r.title="Back to default"; r.setAttribute("aria-label","Reset reps to default");
+            r.onclick=()=>{ const o=Object.assign({},user.over[x.id]||{}); delete o.dose; delete o.base; user.over[x.id]=o; saveUser(); changed(); renderLib(); }; ctl.appendChild(r); }
+        }
+        if(false){ const cur=cueDose(x.cue);
+          const db=document.createElement("button"); db.className="dosebtn"+(x.doseEdited?" edited":""); db.textContent=cur||"set reps";
+          db.setAttribute("aria-label","Change reps or time for "+x.name);
+          db.onclick=()=>{
+            const inp=document.createElement("input"); inp.type="text"; inp.className="doseinp"; inp.value=cur; inp.maxLength=24;
+            db.replaceWith(inp); inp.focus(); inp.select();
+            let done=false; const save=()=>{ if(done) return; done=true; const v=inp.value.trim();
+              if(!v || v===x.defDose){ const o=Object.assign({},user.over[x.id]||{}); delete o.dose; user.over[x.id]=o; saveUser(); changed(); renderLib(); }
+              else setOver(x.id,{dose:v}); };
+            inp.onkeydown=ev=>{ if(ev.key==="Enter") save(); if(ev.key==="Escape"){ done=true; renderLib(); } };
+            inp.onblur=save;
+          };
+          li.appendChild(db);
+          if(x.doseEdited){ const r=document.createElement("button"); r.className="rst"; r.textContent="↺"; r.title="Back to "+x.defDose; r.setAttribute("aria-label","Reset to "+x.defDose);
+            r.onclick=()=>{ const o=Object.assign({},user.over[x.id]||{}); delete o.dose; user.over[x.id]=o; saveUser(); changed(); renderLib(); }; li.appendChild(r); }
+        }
+        if(mode!=="warmup"){
+          const st=document.createElement("span"); st.className="step";
+          const m=document.createElement("button"); m.textContent="−"; m.setAttribute("aria-label","Less often");
+          const v=document.createElement("span"); v.textContent="×"+x.freq;
+          const p=document.createElement("button"); p.textContent="+"; p.setAttribute("aria-label","More often");
+          m.onclick=()=>setOver(x.id,{freq:Math.max(1,x.freq-1)});
+          p.onclick=()=>setOver(x.id,{freq:Math.min(10,x.freq+1)});
+          st.className="step often"; const lab=document.createElement("span"); lab.className="lab"; lab.textContent="often";
+          st.append(lab,m,v,p); ctl.appendChild(st);
+        }
+        if(x.custom){
+          const d=document.createElement("button"); d.className="del"; d.textContent="✕"; d.setAttribute("aria-label","Delete");
+          d.onclick=()=>{ user.custom=user.custom.filter(c=>c.id!==x.id); delete user.over[x.id]; saveUser(); changed(); renderLib(); };
+          li.appendChild(d);
+        }
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    });
+  }
+  function setOver(id,patch){ user.over[id]=Object.assign({},user.over[id]||{},patch); saveUser(); changed(); renderLib(); }
+
+  $("addBtn").onclick=()=>{
+    const name=$("addName").value.trim(); if(!name){ $("addName").focus(); return; }
+    const mode=$("addMode").value;
+    user.custom.push({id:"c"+Date.now().toString(36), name, cue:$("addCue").value.trim()||"Steady pace", tag:"custom", mode, sided:$("addSided").checked, freq:1, custom:true});
+    saveUser(); $("addName").value=""; $("addCue").value=""; $("addSided").checked=false;
+    changed(); renderLib();
+  };
+  let restoreArmed=false;
+  $("restoreBtn").onclick=()=>{
+    if(!restoreArmed){ restoreArmed=true; $("restoreBtn").textContent="Tap again to restore (removes your changes)"; setTimeout(()=>{restoreArmed=false;$("restoreBtn").textContent="Restore default library";},4000); return; }
+    restoreArmed=false; $("restoreBtn").textContent="Restore default library";
+    user={over:{},custom:[]}; saveUser(); changed(); renderLib();
+  };
+
+  // ---------- Audio / voice / wake lock ----------
+  // iOS: web audio and speech are muted by the silent switch unless the page is in "playback" mode.
+  // Two ways in: the newer audioSession API, and a silent looping <audio> element started from a tap.
+  let keepAlive=null;
+  function silentWavUrl(){
+    const rate=8000, n=rate/2, buf=new ArrayBuffer(44+n*2), v=new DataView(buf);
+    const w=(o,str)=>{ for(let i=0;i<str.length;i++) v.setUint8(o+i,str.charCodeAt(i)); };
+    w(0,"RIFF"); v.setUint32(4,36+n*2,true); w(8,"WAVE"); w(12,"fmt "); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+    v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,"data"); v.setUint32(40,n*2,true);
+    return URL.createObjectURL(new Blob([buf],{type:"audio/wav"}));
+  }
+  function startPlaybackMode(){
+    try{ if(navigator.audioSession) navigator.audioSession.type="playback"; }catch(e){}
+    try{
+      if(!keepAlive){ keepAlive=new Audio(silentWavUrl()); keepAlive.loop=true; keepAlive.setAttribute("playsinline",""); keepAlive.volume=0.01; }
+      const pr=keepAlive.play(); if(pr&&pr.catch) pr.catch(()=>{});
+    }catch(e){}
+  }
+  function stopPlaybackMode(){ try{ keepAlive&&keepAlive.pause(); }catch(e){} }
+  function unlockAudio(){ startPlaybackMode(); try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state!=="running") actx.resume();
+      // play a 1-sample buffer inside the tap so iOS fully opens the audio context
+      const b=actx.createBuffer(1,1,22050), src=actx.createBufferSource(); src.buffer=b; src.connect(actx.destination); src.start(0);
+    }catch(e){} try{ if(settings.voice&&window.speechSynthesis&&!voiceUnlocked){ voiceUnlocked=true; const u=new SpeechSynthesisUtterance("ready"); u.volume=0.01; speechSynthesis.speak(u); } }catch(e){} }
+  let voiceUnlocked=false;
+  function beep(f,d){ if(!settings.beep||!actx) return; try{ if(actx.state!=="running") actx.resume(); const o=actx.createOscillator(),g=actx.createGain(); o.frequency.value=f; g.gain.setValueAtTime(0.0001,actx.currentTime); g.gain.exponentialRampToValueAtTime(0.35,actx.currentTime+0.01); g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+d); o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime+d+0.02);}catch(e){} }
+  // ---- Voice selection: prefer British / Australian female ----
+  const PREFER=["Bells","Karen","Kate","Serena","Stephanie","Martha","Catherine","Lee","Fiona","Moira","Google UK English Female","Microsoft Libby","Microsoft Sonia","Microsoft Natasha","Microsoft Hazel","Microsoft Susan","Microsoft Catherine"];
+  const MALE=/\b(daniel|arthur|oliver|gordon|malcolm|james|george|ryan|william|thomas|male)\b/i;
+  let voices=[];
+  function loadVoices(){
+    try{ voices=(speechSynthesis.getVoices()||[]).filter(v=>/^en/i.test(v.lang)); }catch(e){ voices=[]; }
+    const sel=$("voiceSel"); if(!sel) return;
+    const cur=settings.voiceName||"";
+    sel.innerHTML='<option value="">Auto (Bells, else British/Australian female)</option>';
+    const rank=v=>{ const i=PREFER.findIndex(n=>v.name.indexOf(n)===0||v.name.indexOf(n)>=0); return i<0?99:i; };
+    voices.slice().sort((a,b)=>rank(a)-rank(b)||a.lang.localeCompare(b.lang)||a.name.localeCompare(b.name)).forEach(v=>{
+      const o=document.createElement("option"); o.value=v.name; o.textContent=v.name+" ("+v.lang+")"; sel.appendChild(o);
+    });
+    sel.value = voices.some(v=>v.name===cur) ? cur : "";
+  }
+  function pickVoice(){
+    if(!voices.length) loadVoices();
+    if(settings.voiceName){ const v=voices.find(v=>v.name===settings.voiceName); if(v) return v; }
+    { const b=voices.find(v=>v.name==="Bells"||v.name.indexOf("Bells")===0); if(b) return b; }
+    for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0 && /en[-_](GB|AU|IE|NZ)/i.test(v.lang)); if(v) return v; }
+    for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0); if(v) return v; }
+    return voices.find(v=>/en[-_]GB/i.test(v.lang)&&!MALE.test(v.name)) || voices.find(v=>/en[-_]AU/i.test(v.lang)&&!MALE.test(v.name)) || voices.find(v=>/en[-_](GB|AU)/i.test(v.lang)) || null;
+  }
+  try{ if(window.speechSynthesis){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; } }catch(e){}
+  if(!("speechSynthesis" in window)){ const n=document.createElement("div"); n.className="warnbox"; n.textContent="Voice isn't supported in this browser. Try opening the link in Safari or Chrome."; $("voiceSel").closest(".row").after(n); }
+  const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+  if(IOS){ const n=document.createElement("div"); n.className="note"; n.style.marginTop="0"; n.textContent="iPhone tip: beeps work in silent mode, but the voice needs the ringer on (switch toward the screen, not showing orange)."; $("voiceSel").closest(".row").after(n); }
+  let lastU=null; // keep a reference so the utterance isn't garbage-collected before it plays
+  function makeUtter(t,hooks){
+    const u=new SpeechSynthesisUtterance(t); u.rate=1; u.volume=1;
+    const v=pickVoice();
+    // On iPhone, only force a voice the user picked or one that is installed on the device
+    if(v){ u.voice=v; u.lang=v.lang; } else u.lang="en-GB";
+    if(hooks){ u.onstart=hooks.start; u.onerror=hooks.error; u.onend=hooks.end; }
+    lastU=u; return u;
+  }
+  function say(t,hooks,immediate){
+    if(!window.speechSynthesis) return;
+    if(!settings.voice && !immediate) return;
+    try{
+      const ss=window.speechSynthesis;
+      const go=()=>{ try{ ss.resume(); ss.speak(makeUtter(t,hooks)); }catch(e){ hooks&&hooks.error&&hooks.error({error:String(e)}); } };
+      if(immediate){ if(ss.speaking||ss.pending) ss.cancel(); go(); return; }
+      // iOS drops an utterance spoken immediately after cancel(); only cancel if busy, then wait a beat
+      if(ss.speaking||ss.pending){ ss.cancel(); setTimeout(go,120); } else go();
+    }catch(e){}
+  }
+  async function requestWake(){ try{ if("wakeLock" in navigator) wakeLock=await navigator.wakeLock.request("screen"); }catch(e){} }
+  function releaseWake(){ try{ wakeLock&&wakeLock.release(); }catch(e){} wakeLock=null; }
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&running) requestWake(); });
+
+  // ---------- Chain (dates of finished workouts only) ----------
+  const dkey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const addDays=(d,n)=>{ const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+  function doneSet(){ return new Set(Array.isArray(settings.done)?settings.done:[]); }
+  function markDone(){ const s=doneSet(); s.add(dkey(new Date())); settings.done=[...s].sort().slice(-400); saveSettings(); }
+  function streak(){
+    const s=doneSet(); let d=new Date(); if(!s.has(dkey(d))) d=addDays(d,-1);   // today not done yet: count up to yesterday
+    let count=0, misses=0;
+    for(let i=0;i<800;i++){
+      if(s.has(dkey(d))){ count++; misses=0; }
+      else { misses++; if(!settings.grace || misses>1) break; }
+      d=addDays(d,-1);
+    }
+    return count;
+  }
+  function chainRow(n){ const s=doneSet(); let out=""; for(let i=n-1;i>=0;i--) out+= s.has(dkey(addDays(new Date(),-i))) ? "🟩" : "⬜"; return out; }
+  function partOfDay(h){ return h<5?"Early-morning":h<12?"Morning":h<14?"Noon":h<17?"Afternoon":h<21?"Evening":"Late-night"; }
+  function shareText(note){
+    const now=new Date(), n=streak();
+    const date=now.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"});
+    const lines=[ `KB Catalyst · Day ${n} 🔥`, chainRow(14), `${ratio()} · ${settings.easy?"Easy day":"Full day"} · ${date}, ${partOfDay(now.getHours()).toLowerCase()} workout` ];
+    if(note) lines.push(`"${note}"`);
+    lines.push(HOME+"#"+exportCode(false));
+    return lines.join("\n");
+  }
+
+  // ---------- Modal ----------
+  function openModal(title, build){ $("mTitle").textContent=title; const b=$("mBody"); b.innerHTML=""; build(b); $("modal").hidden=false; $("mClose").focus(); }
+  function closeModal(){ $("modal").hidden=true; }
+  $("mClose").onclick=closeModal;
+  $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeModal(); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("modal").hidden) closeModal(); });
+  const el=(tag,props,...kids)=>{ const n=document.createElement(tag); Object.assign(n,props||{}); kids.forEach(k=>n.append(k)); return n; };
+  const P=t=>el("p",{textContent:t}), H=t=>el("h3",{textContent:t});
+  async function copyText(text, btn, ta){
+    let ok=false; try{ await navigator.clipboard.writeText(text); ok=true; }catch(e){}
+    if(!ok && ta){ try{ ta.focus(); ta.select(); ok=document.execCommand("copy"); }catch(e){} }
+    const old=btn.textContent; btn.textContent= ok ? "Copied ✓" : "Select & copy it manually"; setTimeout(()=>btn.textContent=old,2000);
+  }
+
+  // ---------- Health disclaimer ----------
+  $("icoHealth").onclick=()=>openModal("Health disclaimer",b=>{
+    b.append(
+      P("KB Catalyst is a workout timer for general fitness. It isn't medical advice and doesn't replace a doctor, physiotherapist or qualified coach."),
+      P("Check with your doctor before starting a new exercise routine, especially if you have a health condition or an injury, are pregnant, or haven't exercised in a while."),
+      P("Learn each movement with good form and a light bell before using it here, ideally from a qualified coach. Choose a weight you can control for every exercise on your list, and switch off anything you're not comfortable doing."),
+      P("Stop right away if you feel pain, dizziness, chest discomfort or unusual shortness of breath."),
+      P("You use KB Catalyst at your own risk.")
+    );
+  });
+
+  // ---------- About & feedback ----------
+  const FEEDBACK = ""; // TODO: Ken's email or form link
+  $("icoAbout").onclick=()=>openModal("About KB Catalyst",b=>{
+    b.append(
+      P("KB Catalyst intends to lower workout activation energy by providing simple programs that meet the time requirements of busy people, with as little equipment and setup as possible."),
+      el("p",{},"The premise in a nutshell: find one kettlebell (preferably one on the lighter side; the ",
+        el("a",{href:"https://bellsofsteel.com/collections/adjustable-kettlebells",target:"_blank",rel:"noopener",textContent:"adjustable bells from Bells of Steel",style:"color:var(--accent2)"}),
+        " are a great option), visit the kbcatalyst.ca site on your mobile device, select a workout length and exercise duration, and review the workout planned for you. It is as easy as pressing Start and listening to the prompts."),
+      P("There is no app to install, although the site does save your preferences on your device."),
+      P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
+      P("All of your preferences are saved on your device."),
+      el("p",{className:"ok",textContent:"Version 1.1"}),
+      H("Questions & feedback")
+    );
+    if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
+      b.append(isLink ? el("p",{},el("a",{href:FEEDBACK,textContent:"Send feedback",target:"_blank",rel:"noopener",style:"color:var(--accent2)"}))
+                      : P("Email: "+FEEDBACK)); }
+    else b.append(P("A feedback link is coming soon. In the meantime, tell the person who shared this with you."));
+  });
+
+  // ---------- Share codes (letters & digits only, so they survive in a link) ----------
+  const B32="abcdefghijklmnopqrstuvwxyz234567";
+  function b32enc(bytes){ let out="",bits=0,val=0; for(const b of bytes){ val=(val<<8)|b; bits+=8; while(bits>=5){ out+=B32[(val>>>(bits-5))&31]; bits-=5; } } if(bits>0) out+=B32[(val<<(5-bits))&31]; return out; }
+  function b32dec(str){ const out=[]; let bits=0,val=0; for(const ch of str){ const i=B32.indexOf(ch); if(i<0) throw new Error("bad"); val=(val<<5)|i; bits+=5; if(bits>=8){ out.push((val>>>(bits-8))&255); bits-=8; } } return new Uint8Array(out); }
+  function exportCode(withChain){
+    const custom=user.custom.map(c=>({id:c.id,name:c.name,cue:c.cue,mode:c.mode,sided:c.sided,freq:c.freq}));
+    const payload={v:1,s:{len:settings.len,int:settings.int,easy:!!settings.easy,seed:settings.seed,scale:settings.scale!==false},o:user.over,c:custom};
+    if(withChain){ payload.d=[...doneSet()].sort().slice(-400); payload.g=!!settings.grace; }
+    return "w"+b32enc(new TextEncoder().encode(JSON.stringify(payload)));
+  }
+  function parseCode(code){
+    code=(code||"").trim().replace(/^.*#/,"").toLowerCase();
+    if(!/^w[a-z2-7]+$/.test(code)) return null;
+    try{ const p=JSON.parse(new TextDecoder().decode(b32dec(code.slice(1)))); if(p&&p.v===1&&p.s) return p; }catch(e){}
+    return null;
+  }
+  function applyCode(p){
+    user={over:p.o||{},custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))}; saveUser();
+    Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,seed:+p.s.seed||1,scale:p.s.scale!==false});
+    if(Array.isArray(p.d)){ const s=doneSet(); p.d.forEach(x=>{ if(/^\d{4}-\d\d-\d\d$/.test(x)) s.add(x); }); settings.done=[...s].sort().slice(-400); settings.grace=!!p.g; }
+    saveSettings(); try{ $("scaleChk").checked=settings.scale!==false; $("graceChk").checked=!!settings.grace; }catch(e){}
+    $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
+    if(inProgress()){ running=false; clearInterval(timer); } reset();
+  }
+  const HOME = /kbcatalyst\./i.test(location.hostname) ? location.origin+location.pathname : "https://claude.ai/artifact/UrUySb7VVbPWQG91ebkcZz";
+  const ratio=()=> plan.length+"/"+settings.len;
+  function offList(){ return library().filter(x=>!x.on && !x.custom).map(x=>x.name.replace(/ \(.*\)$/,"")); }
+
+  const TAGLINE="One bell. One phone. Every day.";
+  let cardNote="";
+  function shareImage(){
+    const c=document.createElement("canvas"); c.width=1080; c.height=1080; const g=c.getContext("2d");
+    const grd=g.createLinearGradient(0,0,1080,1080); grd.addColorStop(0,"#181b22"); grd.addColorStop(1,"#0f1115"); g.fillStyle=grd; g.fillRect(0,0,1080,1080);
+    g.strokeStyle="#f2a33a"; g.lineWidth=10; g.strokeRect(40,40,1000,1000);
+    g.textAlign="center"; g.fillStyle="#f2a33a"; g.font="800 54px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif"; g.fillText("KB CATALYST",540,170);
+    const F=(w,sz)=>w+" "+sz+"px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
+    const n=streak(), now=new Date();
+    g.fillStyle="#eef1f6"; g.font=F(900,230); g.fillText("Day "+n,540,440);
+    // chain: 14 squares
+    const s=doneSet(), sz=52, gap=10, total=14*sz+13*gap, x0=540-total/2, y0=500;
+    for(let i=0;i<14;i++){ const on=s.has(dkey(addDays(now,-(13-i)))); g.fillStyle=on?"#4fc3a1":"#2a2f3a"; roundRect(g,x0+i*(sz+gap),y0,sz,sz,10); g.fill(); }
+    g.fillStyle="#8b93a3"; g.font=F(500,34); g.fillText("last 14 days",540,600);
+    const label=(settings.easy?"EASY DAY":"FULL DAY")+"  ·  "+ratio(); g.font=F(700,40);
+    const w=g.measureText(label).width+70; g.fillStyle=settings.easy?"#4fc3a1":"#f2a33a"; roundRect(g,540-w/2,650,w,74,37); g.fill();
+    g.fillStyle="#111"; g.fillText(label,540,701);
+    const date=now.toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"});
+    g.fillStyle="#c9cfdb"; g.font=F(500,38); g.fillText(date+" · "+partOfDay(now.getHours()).toLowerCase(),540,800);
+    if(cardNote){ g.fillStyle="#f2a33a"; g.font=F(600,42); let t="“"+cardNote+"”"; while(g.measureText(t).width>920 && t.length>5) t=t.slice(0,-2)+"…”"; g.fillText(t,540,880); }
+    g.fillStyle="#eef1f6"; g.font=F(600,40); g.fillText(TAGLINE,540,975);
+    return c.toDataURL("image/png");
+  }
+  function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+
+  let installEvt=null; window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; });
+  function installSteps(b){
+    const ua=navigator.userAgent, ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), android=/Android/.test(ua), mac=/Macintosh/.test(ua)&&!ios;
+    if(installEvt){ const btn=el("button",{className:"small primary",textContent:"Install KB Catalyst"}); btn.onclick=async()=>{ try{ installEvt.prompt(); await installEvt.userChoice; }catch(e){} installEvt=null; closeModal(); }; b.append(el("div",{className:"btnrow"},btn)); return; }
+    const steps = ios ? ["Open this page in Safari.","Tap the Share button (the box with the arrow).","Tap “Add to Home Screen”, then “Add”."]
+      : android ? ["Open this page in Chrome.","Tap ⋮ (top right).","Tap “Add to Home screen” or “Install app”."]
+      : mac ? ["In Chrome or Edge: click the install icon at the right of the address bar, or ⋮ → Save and share → Install.","In Safari: File → Add to Dock."]
+      : ["In Chrome or Edge: click the install icon at the right of the address bar, or ⋮ → Install."];
+    const ol=el("ol"); steps.forEach(t=>ol.append(el("li",{textContent:t}))); b.append(ol);
+    b.append(el("p",{className:"ok",textContent:"You'll get a KB Catalyst icon that opens straight to your workout."}));
+  }
+
+  function openShare(){ openModal("Share & install",b=>{
+    // Share today
+    b.append(H("Share today · Day "+streak()+" 🔥"));
+    const note=el("input",{type:"text",maxLength:40,placeholder:"Add a note (optional), e.g. killer sesh"}); note.style.width="100%";
+    const box=el("div",{className:"sharebox"});
+    const img=el("img",{alt:"KB Catalyst share card"});
+    const refresh=()=>{ cardNote=note.value.trim(); box.textContent=shareText(cardNote); try{ img.src=shareImage(); img.hidden=false; }catch(e){ img.hidden=true; } };
+    note.oninput=refresh; refresh();
+    const shareBtn=el("button",{className:"small primary",textContent:"Share…"});
+    const copyBtn=el("button",{className:"small",textContent:"Copy text"});
+    const hidden=el("textarea",{rows:1}); hidden.style.position="absolute"; hidden.style.left="-9999px";
+    copyBtn.onclick=()=>{ hidden.value=box.textContent; copyText(box.textContent,copyBtn,hidden); };
+    shareBtn.onclick=async()=>{
+      const text=box.textContent;
+      if(navigator.share){
+        try{
+          let files=[]; try{ const blob=await (await fetch(img.src)).blob(); files=[new File([blob],"kb-catalyst.png",{type:"image/png"})]; }catch(e){}
+          if(files.length && navigator.canShare && navigator.canShare({files,text})) await navigator.share({text,files});
+          else await navigator.share({text});
+          return;
+        }catch(e){ if(e && e.name==="AbortError") return; }
+      }
+      hidden.value=text; copyText(text,shareBtn,hidden);   // no share sheet here: copy instead
+      shareBtn.textContent="Copied. Paste it anywhere"; setTimeout(()=>shareBtn.textContent="Share…",2500);
+    };
+    b.append(note, box, el("div",{className:"btnrow"},shareBtn,copyBtn), hidden,
+      P("On a phone, long-press the card to save it for Instagram."), img);
+
+    // Install
+    b.append(H("Install on this device")); installSteps(b);
+
+    // Share my workout
+    b.append(H("Share my workout "+ratio()));
+    const link=HOME+"#"+exportCode(false);
+    const ta=el("textarea",{rows:3,readOnly:true,value:link});
+    const cp=el("button",{className:"small",textContent:"Copy link"}); cp.onclick=()=>copyText(link,cp,ta);
+    b.append(P("Anyone who opens this link gets your exact workout: your library, reps, mix, length and easy/full setting."), ta, el("div",{className:"btnrow"},cp));
+    if(link.length>1500) b.append(el("p",{className:"ok",textContent:"This is a long link. If it doesn't open your workout, send the setup code below instead."}));
+
+
+    // Invite
+    b.append(H("Invite a friend"));
+    const inv=el("textarea",{rows:1,readOnly:true,value:HOME});
+    const ci=el("button",{className:"small",textContent:"Copy invite link"}); ci.onclick=()=>copyText(HOME,ci,inv);
+    b.append(P("Sends the standard starting version, so they can make it their own."), inv, el("div",{className:"btnrow"},ci));
+
+    // Setup code
+    b.append(H("Setup code"));
+    const code=exportCode(true); const cta=el("textarea",{rows:3,readOnly:true,value:code});
+    const cc=el("button",{className:"small",textContent:"Copy my code"}); cc.onclick=()=>copyText(code,cc,cta);
+    b.append(P("Use this to move your setup and your chain to another device or browser, or as a backup."), cta, el("div",{className:"btnrow"},cc));
+    const pin=el("textarea",{rows:3,placeholder:"Paste a setup code or shared link here"});
+    const msg=el("p",{className:"ok"});
+    const ld=el("button",{className:"small",textContent:"Load setup"}); ld.onclick=()=>{ const p=parseCode(pin.value); if(!p){ msg.style.color="var(--warn)"; msg.textContent="That code doesn't look right. Check it was copied in full."; return; } applyCode(p); msg.style.color=""; msg.textContent="Loaded ✓ Your workout is ready."; };
+    b.append(pin, el("div",{className:"btnrow"},ld), msg);
+  }); }
+  $("icoShare").onclick=openShare;
+  $("finishShare").onclick=openShare;
+
+  // ---------- Open a shared workout from the link ----------
+  function checkHash(){
+    const h=location.hash.replace(/^#/,""); if(!/^w[a-z2-7]+$/.test(h)) return;
+    const p=parseCode(h); if(!p) return;
+    const clear=()=>{ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){ try{ location.hash=""; }catch(_){} } };
+    const n=Math.round(p.s.len*60/p.s.int);
+    openModal("Shared workout",b=>{
+      b.append(P(`Someone shared a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day with you: about ${n} exercises at ${p.s.int} seconds each.`),
+               P("Loading it replaces your current library and settings on this device."));
+      const y=el("button",{className:"small primary",textContent:"Load this workout"}); y.onclick=()=>{ applyCode(p); clear(); closeModal(); };
+      const no=el("button",{className:"small",textContent:"Not now"}); no.onclick=()=>{ clear(); closeModal(); };
+      b.append(el("div",{className:"btnrow"},y,no));
+    });
+  }
+  window.addEventListener("hashchange",checkHash);
+
+  // ---------- Controls ----------
+  $("startBtn").onclick=()=> prerolling?cancelPreroll():(running?pause():start());
+  $("skipBtn").onclick=()=>{ unlockAudio(); if(prerolling){ prerolling=false; try{ speechSynthesis.cancel(); }catch(e){} go(0,false); return; } if(idx<0){ if(!running) start(); return; } go(idx+1,false); };
+  $("backBtn").onclick=()=>{ if(idx>0) go(idx-1,false); };
+  $("resetBtn").onclick=reset;
+  $("mixBtn").onclick=()=>{ settings.seed=(settings.seed%1000000)+1+Math.floor(Math.random()*997); saveSettings(); reset(); };
+  $("easyBtn").onclick=()=>{ settings.easy=!settings.easy; saveSettings(); if(inProgress()){ dirty=true; $("pending").hidden=false; renderHead(); } else reset(); };
+  $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
+  $("voiceChk").checked=settings.voice; $("beepChk").checked=settings.beep; $("scrollChk").checked=!!settings.scroll;
+  $("lenSel").onchange=e=>{ settings.len=+e.target.value; saveSettings(); changed(); };
+  $("intSel").onchange=e=>{ settings.int=+e.target.value; saveSettings(); changed(); };
+  $("voiceChk").onchange=e=>{ settings.voice=e.target.checked; saveSettings(); };
+  $("beepChk").onchange=e=>{ settings.beep=e.target.checked; saveSettings(); };
+  $("scrollChk").onchange=e=>{ settings.scroll=e.target.checked; saveSettings(); };
+  $("callChk").checked=settings.callStart!==false;
+  $("scaleChk").checked=settings.scale!==false;
+  $("graceChk").checked=!!settings.grace;
+  $("graceChk").onchange=e=>{ settings.grace=e.target.checked; saveSettings(); };
+  $("scaleChk").onchange=e=>{ settings.scale=e.target.checked; saveSettings(); changed(); renderLib(); };
+  $("callChk").onchange=e=>{ settings.callStart=e.target.checked; saveSettings(); };
+  $("voiceSel").onchange=e=>{ settings.voiceName=e.target.value; saveSettings(); };
+  $("testVoice").onclick=()=>{
+    const diag=$("voiceDiag"); diag.hidden=false;
+    if(!window.speechSynthesis){ diag.textContent="Voice: this browser has no speech support. Try Safari or Chrome."; return; }
+    voiceUnlocked=true;           // speak the real phrase as the first utterance, inside the tap
+    loadVoices();
+    let started=false;
+    const v=pickVoice();
+    const info=`Voices found: ${voices.length} · trying: ${v?v.name+" ("+v.lang+")":"device default"}`;
+    diag.textContent=info+" · starting…";
+    say("Set 3, Prying Goblet Squat, 5 slow repetitions",{
+      start:()=>{ started=true; diag.textContent=info+" · speaking ✓"; },
+      error:e=>{ diag.textContent=info+" · error: "+((e&&e.error)||"unknown"); },
+      end:()=>{ if(started) diag.textContent=info+" · finished ✓"; }
+    }, true);
+    setTimeout(()=>{ if(!started) diag.textContent=info+" · speech didn't start. On iPhone, try flipping the silent switch off and tapping Test again."; },2500);
+    // beep after starting speech so the tap is used for speech first
+    unlockAudio(); const ob=settings.beep; settings.beep=true; beep(880,0.2); settings.beep=ob;
+    setTimeout(()=>{ if(!running) stopPlaybackMode(); },8000);
+  };
+
+  reset();
+  checkHash();
+})();
+</script>
+</body>
+</html>
