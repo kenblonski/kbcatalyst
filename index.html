@@ -674,7 +674,17 @@
   }
   function trimHist(){ const h=hist(), keys=Object.keys(h).sort(); keys.slice(0,Math.max(0,keys.length-400)).forEach(k=>delete h[k]); }
   function doneSet(){ return new Set(Object.keys(hist())); }
-  function markDone(){ const now=new Date(); hist()[dkey(now)]={b:bandOf(now.getHours()), m:settings.len}; trimHist(); saveSettings(); }
+  function markDone(){ const now=new Date(); hist()[dkey(now)]={b:bandOf(now.getHours()), m:settings.len, h:now.getHours(), n:plan.length, e:settings.easy?1:0}; trimHist(); saveSettings(); }
+  // What the share card and text describe: today's finished workout if there is one, otherwise a preview using the current time
+  function shareInfo(){
+    const now=new Date(), e=hist()[dkey(now)];
+    const BAND_WORDS=["early morning","daytime","evening","late-night"];
+    if(e){
+      const when = e.h!=null ? partOfDay(e.h).toLowerCase().replace("-"," ") : BAND_WORDS[e.b||0];
+      return {date:now, when, ratio:(e.n||plan.length)+"/"+(e.m||settings.len), easy: e.e!=null ? !!e.e : !!settings.easy, actual:true};
+    }
+    return {date:now, when:partOfDay(now.getHours()).toLowerCase().replace("-"," "), ratio:ratio(), easy:!!settings.easy, actual:false};
+  }
   function streak(){
     const s=doneSet(); let d=new Date(); if(!s.has(dkey(d))) d=addDays(d,-1);   // today not done yet: count up to yesterday
     let count=0, misses=0;
@@ -688,9 +698,9 @@
   function chainRow(n){ const h=hist(); let out=""; for(let i=n-1;i>=0;i--){ const e=h[dkey(addDays(new Date(),-i))]; out+= e ? BAND_EMOJI[e.b||0] : "⬜"; } return out; }
   function partOfDay(h){ return h<7?"Early-morning":h<12?"Morning":h<17?"Afternoon":h<21?"Evening":"Late-night"; }   // lines up with the 4 chain bands
   function shareText(note){
-    const now=new Date(), n=streak();
-    const date=now.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"});
-    const lines=[ (n ? `KB Catalyst · Day ${n} 🔥` : "KB Catalyst · starting my chain"), chainRow(14), `${ratio()} · ${settings.easy?"Easy day":"Full day"} · ${date}, ${partOfDay(now.getHours()).toLowerCase()} workout` ];
+    const n=streak(), info=shareInfo();
+    const date=info.date.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"});
+    const lines=[ (n ? `Kettlebell Catalyst · Day ${n} 🔥` : "Kettlebell Catalyst · starting my chain"), chainRow(14), `${info.ratio} · ${info.easy?"Easy day":"Full day"} · ${date}, ${info.when} workout` ];
     if(note) lines.push(`"${note}"`);
     lines.push(HOME+"#"+exportCode(false));
     return lines.join("\n");
@@ -736,26 +746,26 @@
   // ---------- Health disclaimer ----------
   $("icoHealth").onclick=()=>openModal("Health disclaimer",b=>{
     b.append(
-      P("KB Catalyst is a workout timer for general fitness. It isn't medical advice and doesn't replace a doctor, physiotherapist or qualified coach."),
+      P("Kettlebell Catalyst is a workout timer for general fitness. It isn't medical advice and doesn't replace a doctor, physiotherapist or qualified coach."),
       P("Check with your doctor before starting a new exercise routine, especially if you have a health condition or an injury, are pregnant, or haven't exercised in a while."),
       P("Learn each movement with good form and a light bell before using it here, ideally from a qualified coach. Choose a weight you can control for every exercise on your list, and switch off anything you're not comfortable doing."),
       P("Stop right away if you feel pain, dizziness, chest discomfort or unusual shortness of breath."),
-      P("You use KB Catalyst at your own risk.")
+      P("You use Kettlebell Catalyst at your own risk.")
     );
   });
 
   // ---------- About & feedback ----------
   const FEEDBACK = ""; // TODO: Ken's email or form link
-  $("icoAbout").onclick=()=>openModal("About KB Catalyst",b=>{
+  $("icoAbout").onclick=()=>openModal("About Kettlebell Catalyst",b=>{
     b.append(
-      P("KB Catalyst intends to lower workout activation energy by providing simple programs that meet the time requirements of busy people, with as little equipment and setup as possible."),
+      P("Kettlebell Catalyst intends to lower workout activation energy by providing simple programs that meet the time requirements of busy people, with as little equipment and setup as possible."),
       el("p",{},"The premise in a nutshell: find one kettlebell (preferably one on the lighter side; the ",
         el("a",{href:"https://bellsofsteel.com/collections/adjustable-kettlebells",target:"_blank",rel:"noopener",textContent:"adjustable bells from Bells of Steel",style:"color:var(--accent2)"}),
         " are a great option), visit the kbcatalyst.ca site on your mobile device, select a workout length and exercise duration, and review the workout planned for you. It is as easy as pressing Start and listening to the prompts."),
       P("There is no app to install, although the site does save your preferences on your device."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
       P("All of your preferences are saved on your device."),
-      el("p",{className:"ok",textContent:"Version 1.3"}),
+      el("p",{className:"ok",textContent:"Version 1.4"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -800,16 +810,16 @@
     const F=(w,sz)=>w+" "+sz+"px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
     const grd=g.createLinearGradient(0,0,1080,1080); grd.addColorStop(0,"#181b22"); grd.addColorStop(1,"#0f1115"); g.fillStyle=grd; g.fillRect(0,0,1080,1080);
     g.strokeStyle="#f2a33a"; g.lineWidth=10; g.strokeRect(40,40,1000,1000);
-    const n=streak(), now=new Date(), h=hist();
-    // 1: when
+    const n=streak(), now=new Date(), h=hist(), info=shareInfo();
+    // 1: when (the time the workout was actually done, or now for a preview)
     g.textAlign="center"; g.fillStyle="#c9cfdb"; g.font=F(500,40);
-    g.fillText(now.toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"})+" · "+partOfDay(now.getHours()).toLowerCase(),540,150);
+    g.fillText(info.date.toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"})+" · "+info.when,540,150);
     // 2: what · Day N (boldest)
-    const a=(settings.easy?"EASY DAY":"FULL DAY")+" · "+ratio()+" · ", b= n ? "Day "+n+" 🔥" : "Day 1 next";
+    const a=(info.easy?"EASY DAY":"FULL DAY")+" · "+info.ratio+" · ", b= n ? "Day "+n+" 🔥" : "Day 1 next";
     g.font=F(700,52); const wa=g.measureText(a).width; g.font=F(900,84); const wb=g.measureText(b).width;
     const sc=Math.min(1, 900/(wa+wb)), x=540-(wa+wb)*sc/2;
     g.save(); g.translate(x,262); g.scale(sc,sc); g.textAlign="left";
-    g.fillStyle=settings.easy?"#4fc3a1":"#f2a33a"; g.font=F(700,52); g.fillText(a,0,0);
+    g.fillStyle=info.easy?"#4fc3a1":"#f2a33a"; g.font=F(700,52); g.fillText(a,0,0);
     g.fillStyle="#eef1f6"; g.font=F(900,84); g.fillText(b,wa,0); g.restore();
     // 3: 14 days x 4 bands; deeper green = longer
     const shade=m=> !m?"#4fc3a1": m>=60?"#2fa884": m>=45?"#4fc3a1": m>=30?"#7fd6bd": m>=20?"#a9e4d3":"#d1f2e8";
@@ -834,13 +844,13 @@
   let installEvt=null; window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); installEvt=e; });
   function installSteps(b){
     const ua=navigator.userAgent, ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1), android=/Android/.test(ua), mac=/Macintosh/.test(ua)&&!ios;
-    if(installEvt){ const btn=el("button",{className:"small primary",textContent:"Install KB Catalyst"}); btn.onclick=async()=>{ try{ installEvt.prompt(); await installEvt.userChoice; }catch(e){} installEvt=null; closeModal(); }; b.append(el("div",{className:"btnrow"},btn)); return; }
+    if(installEvt){ const btn=el("button",{className:"small primary",textContent:"Install Kettlebell Catalyst"}); btn.onclick=async()=>{ try{ installEvt.prompt(); await installEvt.userChoice; }catch(e){} installEvt=null; closeModal(); }; b.append(el("div",{className:"btnrow"},btn)); return; }
     const steps = ios ? ["Open this page in Safari.","Tap the Share button (the box with the arrow).","Tap “Add to Home Screen”, then “Add”."]
       : android ? ["Open this page in Chrome.","Tap ⋮ (top right).","Tap “Add to Home screen” or “Install app”."]
       : mac ? ["In Chrome or Edge: click the install icon at the right of the address bar, or ⋮ → Save and share → Install.","In Safari: File → Add to Dock."]
       : ["In Chrome or Edge: click the install icon at the right of the address bar, or ⋮ → Install."];
     const ol=el("ol"); steps.forEach(t=>ol.append(el("li",{textContent:t}))); b.append(ol);
-    b.append(el("p",{className:"ok",textContent:"You'll get a KB Catalyst icon that opens straight to your workout."}));
+    b.append(el("p",{className:"ok",textContent:"You'll get a Kettlebell Catalyst icon that opens straight to your workout."}));
   }
 
   function openShare(){ openModal("Share & install",b=>{
@@ -848,7 +858,7 @@
     b.append(H(streak() ? "Share today · Day "+streak()+" 🔥" : "Share"));
     const note=el("input",{type:"text",maxLength:40,placeholder:"Add a note (optional), e.g. killer sesh"}); note.style.width="100%";
     const box=el("div",{className:"sharebox"});
-    const img=el("img",{alt:"KB Catalyst share card"});
+    const img=el("img",{alt:"Kettlebell Catalyst share card"});
     const refresh=()=>{ cardNote=note.value.trim(); box.textContent=shareText(cardNote); try{ img.src=shareImage(); img.hidden=false; }catch(e){ img.hidden=true; } };
     note.oninput=refresh; refresh();
     const shareBtn=el("button",{className:"small primary",textContent:"Share…"});
@@ -931,7 +941,7 @@
     if(p.h){ clear(); return; }               // setup codes (with a chain) are loaded from the share menu, not links
     if(!isReturningUser()){                   // new here: their first workout is the one they were sent
       applyCode(p); clear();
-      openModal("Welcome to KB Catalyst",b=>{
+      openModal("Welcome to Kettlebell Catalyst",b=>{
         b.append(P(`You've been sent a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each. It's loaded and ready.`),
                  P("Press Start when your bell is ready. You can make it your own later in the exercise library."));
         const ok=el("button",{className:"small primary",textContent:"Let's go"}); ok.onclick=closeModal;
