@@ -785,7 +785,7 @@
       P("There is no app to install, although the site does save your preferences on your device."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
       P("All of your preferences are saved on your device."),
-      el("p",{className:"ok",textContent:"Version 1.5.1"}),
+      el("p",{className:"ok",textContent:"Version 1.5.2"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -854,10 +854,33 @@
     }
     // 4: note, brand, tagline
     g.textAlign="center";
-    if(cardNote){ g.fillStyle="#f2d21b"; g.font=F(600,42); let t="“"+cardNote+"”"; while(g.measureText(t).width>920 && t.length>5) t=t.slice(0,-2)+"…”"; g.fillText(t,540,848); }
-    g.fillStyle="#f2d21b"; g.font=F(800,50); g.fillText("kbcatalyst.ca",540,935);
-    g.fillStyle="#eef1f6"; g.font=F(600,36); g.fillText(TAGLINE,540,990);
+    if(cardNote){ g.fillStyle="#f2d21b"; g.font=F(600,42); let t="“"+cardNote+"”"; while(g.measureText(t).width>920 && t.length>5) t=t.slice(0,-2)+"…”"; g.fillText(t,540,826); }
+    // sign-off: app icon on the left, address and tagline left-aligned beside it, the pair centred
+    { const icon=120, gap=26; g.font=F(800,50); const w1=g.measureText("kbcatalyst.ca").width; g.font=F(600,36); const w2=g.measureText(TAGLINE).width;
+      const total=icon+gap+Math.max(w1,w2), x0=540-total/2, top=876;
+      drawAppIcon(g,x0,top,icon);
+      g.textAlign="left"; g.fillStyle="#f2d21b"; g.font=F(800,50); g.fillText("kbcatalyst.ca",x0+icon+gap,top+52);
+      g.fillStyle="#eef1f6"; g.font=F(600,36); g.fillText(TAGLINE,x0+icon+gap,top+104); }
     return c.toDataURL("image/png");
+  }
+  // The KBC app icon, drawn to match icon-512.png (competition bell, mid grey tile, yellow border)
+  function drawAppIcon(g,x,y,size){
+    const YEL="#f2d21b", YDK="#c9ab0c", BLK="#15171b", BG="#8a8f97", s=0.2424, X=v=>256+(v-960)*s, Y=v=>256+(v-950)*s;
+    g.save(); g.translate(x,y); g.scale(size/512,size/512);
+    roundRect(g,0,0,512,512,112); g.fillStyle=BG; g.fill();
+    roundRect(g,9,9,494,494,103); g.lineWidth=18; g.strokeStyle=YEL; g.stroke();
+    const outline=()=>{ g.beginPath(); g.moveTo(X(600),Y(140)); g.lineTo(X(1320),Y(140)); g.quadraticCurveTo(X(1480),Y(140),X(1480),Y(300));
+      g.lineTo(X(1480),Y(560)); g.bezierCurveTo(X(1490),Y(800),X(1525),Y(1050),X(1520),Y(1260)); g.bezierCurveTo(X(1515),Y(1560),X(1440),Y(1735),X(1290),Y(1760));
+      g.lineTo(X(630),Y(1760)); g.bezierCurveTo(X(480),Y(1735),X(405),Y(1560),X(400),Y(1260)); g.bezierCurveTo(X(395),Y(1050),X(430),Y(800),X(440),Y(560));
+      g.lineTo(X(440),Y(300)); g.quadraticCurveTo(X(440),Y(140),X(600),Y(140)); g.closePath(); };
+    g.save(); outline(); g.clip(); g.fillStyle=YEL; g.fillRect(0,0,512,512); g.fillStyle=BLK; g.fillRect(0,0,512,Y(545)); g.restore();
+    g.beginPath(); g.moveTo(X(700),Y(300)); g.lineTo(X(1220),Y(300)); g.quadraticCurveTo(X(1300),Y(300),X(1300),Y(380)); g.lineTo(X(1300),Y(620));
+    g.quadraticCurveTo(X(1300),Y(705),X(1215),Y(710)); g.bezierCurveTo(X(1120),Y(712),X(1050),Y(690),X(960),Y(690)); g.bezierCurveTo(X(870),Y(690),X(800),Y(712),X(705),Y(710));
+    g.quadraticCurveTo(X(620),Y(705),X(620),Y(620)); g.lineTo(X(620),Y(380)); g.quadraticCurveTo(X(620),Y(300),X(700),Y(300)); g.closePath(); g.fillStyle=BG; g.fill();
+    const cx=256, cy=Y(1290), r=(X(1175)-X(960))*1.9;
+    g.beginPath(); g.arc(cx,cy,r,0,Math.PI*2); g.lineWidth=7.6; g.strokeStyle=YDK; g.stroke();
+    g.fillStyle=BLK; g.textAlign="center"; g.textBaseline="middle"; g.font="900 65px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif"; g.fillText("KBC",cx,cy+2);
+    g.restore(); g.textBaseline="alphabetic";
   }
   function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
 
