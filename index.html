@@ -4,10 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kettlebell Catalyst</title>
+<meta name="description" content="One bell. One phone. Every day. A free kettlebell workout timer that plans your session and talks you through every set.">
+<meta name="theme-color" content="#0f1115">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KB Catalyst">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kettlebell Catalyst">
+<meta property="og:title" content="Kettlebell Catalyst">
+<meta property="og:description" content="One bell. One phone. Every day. A free kettlebell workout timer.">
+<meta property="og:url" content="https://kbcatalyst.ca/">
+<meta property="og:image" content="https://kbcatalyst.ca/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
     --bg:#0f1115; --panel:#181b22; --line:#2a2f3a; --text:#eef1f6; --muted:#8b93a3;
-    --accent:#f2a33a; --accent2:#4fc3a1; --warn:#ef5b5b;
+    --accent:#f2d21b; --accent2:#4fc3a1; --warn:#ef5b5b;
   }
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--text);
@@ -611,14 +629,14 @@
   let voiceUnlocked=false;
   function beep(f,d){ if(!settings.beep||!actx) return; try{ if(actx.state!=="running") actx.resume(); const o=actx.createOscillator(),g=actx.createGain(); o.frequency.value=f; g.gain.setValueAtTime(0.0001,actx.currentTime); g.gain.exponentialRampToValueAtTime(0.35,actx.currentTime+0.01); g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+d); o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime+d+0.02);}catch(e){} }
   // ---- Voice selection: prefer British / Australian female ----
-  const PREFER=["Bells","Karen","Kate","Serena","Stephanie","Martha","Catherine","Lee","Fiona","Moira","Google UK English Female","Microsoft Libby","Microsoft Sonia","Microsoft Natasha","Microsoft Hazel","Microsoft Susan","Microsoft Catherine"];
+  const PREFER=["Karen","Kate","Serena","Stephanie","Martha","Catherine","Lee","Fiona","Moira","Google UK English Female","Microsoft Libby","Microsoft Sonia","Microsoft Natasha","Microsoft Hazel","Microsoft Susan","Microsoft Catherine","Samantha"];
   const MALE=/\b(daniel|arthur|oliver|gordon|malcolm|james|george|ryan|william|thomas|male)\b/i;
   let voices=[];
   function loadVoices(){
     try{ voices=(speechSynthesis.getVoices()||[]).filter(v=>/^en/i.test(v.lang)); }catch(e){ voices=[]; }
     const sel=$("voiceSel"); if(!sel) return;
     const cur=settings.voiceName||"";
-    sel.innerHTML='<option value="">Auto (Bells, else British/Australian female)</option>';
+    sel.innerHTML='<option value="">Auto (natural British/Australian female)</option>';
     const rank=v=>{ const i=PREFER.findIndex(n=>v.name.indexOf(n)===0||v.name.indexOf(n)>=0); return i<0?99:i; };
     voices.slice().sort((a,b)=>rank(a)-rank(b)||a.lang.localeCompare(b.lang)||a.name.localeCompare(b.name)).forEach(v=>{
       const o=document.createElement("option"); o.value=v.name; o.textContent=v.name+" ("+v.lang+")"; sel.appendChild(o);
@@ -628,7 +646,9 @@
   function pickVoice(){
     if(!voices.length) loadVoices();
     if(settings.voiceName){ const v=voices.find(v=>v.name===settings.voiceName); if(v) return v; }
-    { const b=voices.find(v=>v.name==="Bells"||v.name.indexOf("Bells")===0); if(b) return b; }
+    // Prefer the higher-quality "Premium" / "Enhanced" downloads of the natural voices when the device has them
+    const HQ=/premium|enhanced|natural|neural/i;
+    for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0 && HQ.test(v.name) && /en[-_](GB|AU|IE|NZ)/i.test(v.lang)); if(v) return v; }
     for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0 && /en[-_](GB|AU|IE|NZ)/i.test(v.lang)); if(v) return v; }
     for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0); if(v) return v; }
     return voices.find(v=>/en[-_]GB/i.test(v.lang)&&!MALE.test(v.name)) || voices.find(v=>/en[-_]AU/i.test(v.lang)&&!MALE.test(v.name)) || voices.find(v=>/en[-_](GB|AU)/i.test(v.lang)) || null;
@@ -765,7 +785,7 @@
       P("There is no app to install, although the site does save your preferences on your device."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
       P("All of your preferences are saved on your device."),
-      el("p",{className:"ok",textContent:"Version 1.4"}),
+      el("p",{className:"ok",textContent:"Version 1.5.1"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -809,7 +829,7 @@
     const c=document.createElement("canvas"); c.width=1080; c.height=1080; const g=c.getContext("2d");
     const F=(w,sz)=>w+" "+sz+"px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
     const grd=g.createLinearGradient(0,0,1080,1080); grd.addColorStop(0,"#181b22"); grd.addColorStop(1,"#0f1115"); g.fillStyle=grd; g.fillRect(0,0,1080,1080);
-    g.strokeStyle="#f2a33a"; g.lineWidth=10; g.strokeRect(40,40,1000,1000);
+    g.strokeStyle="#f2d21b"; g.lineWidth=10; g.strokeRect(40,40,1000,1000);
     const n=streak(), now=new Date(), h=hist(), info=shareInfo();
     // 1: when (the time the workout was actually done, or now for a preview)
     g.textAlign="center"; g.fillStyle="#c9cfdb"; g.font=F(500,40);
@@ -819,7 +839,7 @@
     g.font=F(700,52); const wa=g.measureText(a).width; g.font=F(900,84); const wb=g.measureText(b).width;
     const sc=Math.min(1, 900/(wa+wb)), x=540-(wa+wb)*sc/2;
     g.save(); g.translate(x,262); g.scale(sc,sc); g.textAlign="left";
-    g.fillStyle=info.easy?"#4fc3a1":"#f2a33a"; g.font=F(700,52); g.fillText(a,0,0);
+    g.fillStyle=info.easy?"#4fc3a1":"#f2d21b"; g.font=F(700,52); g.fillText(a,0,0);
     g.fillStyle="#eef1f6"; g.font=F(900,84); g.fillText(b,wa,0); g.restore();
     // 3: 14 days x 4 bands; deeper green = longer
     const shade=m=> !m?"#4fc3a1": m>=60?"#2fa884": m>=45?"#4fc3a1": m>=30?"#7fd6bd": m>=20?"#a9e4d3":"#d1f2e8";
@@ -834,8 +854,8 @@
     }
     // 4: note, brand, tagline
     g.textAlign="center";
-    if(cardNote){ g.fillStyle="#f2a33a"; g.font=F(600,42); let t="“"+cardNote+"”"; while(g.measureText(t).width>920 && t.length>5) t=t.slice(0,-2)+"…”"; g.fillText(t,540,848); }
-    g.fillStyle="#f2a33a"; g.font=F(800,50); g.fillText("kbcatalyst.ca",540,935);
+    if(cardNote){ g.fillStyle="#f2d21b"; g.font=F(600,42); let t="“"+cardNote+"”"; while(g.measureText(t).width>920 && t.length>5) t=t.slice(0,-2)+"…”"; g.fillText(t,540,848); }
+    g.fillStyle="#f2d21b"; g.font=F(800,50); g.fillText("kbcatalyst.ca",540,935);
     g.fillStyle="#eef1f6"; g.font=F(600,36); g.fillText(TAGLINE,540,990);
     return c.toDataURL("image/png");
   }
@@ -1002,6 +1022,8 @@
 
   reset();
   checkHash();
+  // Offline support: only on the real site (kbcatalyst.ca or GitHub Pages), never inside a preview frame
+  try{ if("serviceWorker" in navigator && /kbcatalyst\.ca$|github\.io$/i.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){}
 })();
 </script>
 </body>

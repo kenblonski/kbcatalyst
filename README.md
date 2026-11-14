@@ -1,4 +1,4 @@
-# Kettelbell Catalyst
+# Kettlebell Catalyst
 
 **One bell. One phone. Every day.**
 
