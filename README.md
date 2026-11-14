@@ -1,8 +1,8 @@
-# KB Catalyst
+# Kellebell Catalyst
 
 **One bell. One phone. Every day.**
 
-KB Catalyst is a free kettlebell workout timer that runs in your phone's browser. No app to install, no account, no subscription.
+Kettlebell Catalyst is a free kettlebell workout timer that runs in your phone's browser. No app to install, no account, no subscription.
 
 Pick a workout length and interval, review the session it plans for you, and press Start. It talks you through every set: what's next, how many reps, and when to switch.
 
@@ -10,7 +10,7 @@ Pick a workout length and interval, review the session it plans for you, and pre
 
 ## Why
 
-KB Catalyst aims to lower the activation energy of working out: simple, steady, full-body sessions that fit a busy day, with as little equipment and setup as possible. One kettlebell (preferably on the lighter side) is all you need. The intent is to start with a light bell and to slowly and consistently progress in bell weight, program volume and exercise density.
+Kettlebell Catalyst aims to lower the activation energy of working out: simple, steady, full-body sessions that fit a busy day, with as little equipment and setup as possible. One kettlebell (preferably on the lighter side) is all you need. The intent is to start with a light bell and to slowly and consistently progress in bell weight, program volume and exercise density.
 
 ## Features
 
@@ -25,7 +25,7 @@ KB Catalyst aims to lower the activation energy of working out: simple, steady, 
 
 ## Health note
 
-KB Catalyst is a general fitness timer, not medical advice. Check with your doctor before starting a new exercise routine, learn each movement with good form, and stop if anything hurts.
+Kettlebell Catalyst is a general fitness timer, not medical advice. Check with your doctor before starting a new exercise routine, learn each movement with good form, and stop if anything hurts.
 
 ---
 
