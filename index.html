@@ -63,6 +63,7 @@
   .houserow b{display:block;font-size:18px;color:var(--text)}
   .houserow span{display:block;font-size:15px;color:var(--accent);font-weight:700;margin-top:2px}
   .quote a{color:var(--accent)}
+  body.running .quote{margin-bottom:56px}
   .quote .qby{display:block;font-size:14px;color:var(--muted);margin-top:6px}
   .now{text-align:center}
   .slot{color:var(--text);font-size:26px;font-weight:800;letter-spacing:.5px;font-variant-numeric:tabular-nums}
@@ -561,6 +562,7 @@
     else $("nextLbl").textContent="Last one: finish strong";
   }
   function tick(){
+    runUI();
     if(prerolling){
       const rem=(endAt-performance.now())/1000;
       $("clock").textContent=fmt(rem); $("clock").classList.toggle("low",rem<=3); $("bar").style.width="0%";
@@ -588,12 +590,14 @@
     const cur=document.querySelector("li.cur"); if(cur&&auto&&settings.scroll) cur.scrollIntoView({block:"nearest",behavior:"smooth"});
     tick();
   }
+  // While the timer runs, leave clean black space under the quote panel
+  function runUI(){ try{ document.body.classList.toggle("running", !!(running||prerolling)); }catch(e){} }
   function start(){
     if(!plan.length) return;
     if(idx<0 && !prerolling){ startPreroll(); return; }
     unlockAudio(); requestWake();
     running=true; endAt=performance.now()+remainMs;
-    $("startBtn").textContent="Pause"; clearInterval(timer); timer=setInterval(tick,200);
+    $("startBtn").textContent="Pause"; clearInterval(timer); timer=setInterval(tick,200); runUI();
   }
   function startPreroll(){
     const first=plan[0], intro=`${settings.len} minute ${settings.easy?"easy":"full"} workout. ${plan.length} intervals, ${settings.int} seconds each.`;
@@ -615,14 +619,15 @@
     clearInterval(timer); timer=setInterval(tick,200); tick();
   }
   function cancelPreroll(){ prerolling=false; running=false; try{ speechSynthesis.cancel(); }catch(e){} reset(); }
-  function pause(){ stopPlaybackMode(); running=false; remainMs=Math.max(0,endAt-performance.now()); $("startBtn").textContent="Resume"; clearInterval(timer); releaseWake(); tick(); }
+  function pause(){ stopPlaybackMode(); running=false; remainMs=Math.max(0,endAt-performance.now()); $("startBtn").textContent="Resume"; clearInterval(timer); releaseWake(); tick(); runUI(); }
   function reset(){
-    stopPlaybackMode(); prerolling=false; running=false; clearInterval(timer); releaseWake(); idx=-1;
+    stopPlaybackMode(); prerolling=false; running=false; runUI(); clearInterval(timer); releaseWake(); idx=-1;
     rebuild(); remainMs=settings.int*1000;
     $("startBtn").textContent="Start"; $("finish").style.display="none"; $("nowCard").style.display="";
     renderNow(); renderList(); renderLib();
   }
   function finish(){
+    setTimeout(runUI,0);
     running=false; clearInterval(timer); releaseWake();
     beep(990,0.15); setTimeout(()=>beep(1320,0.3),180); say("Workout complete. Nice work."); setTimeout(stopPlaybackMode,4000);
     $("nowCard").style.display="none"; $("finish").style.display="block";
@@ -911,7 +916,7 @@
 
   // ---------- About & feedback ----------
   const FEEDBACK = ""; // TODO: Ken's email or form link
-  $("icoAbout").onclick=()=>openModal("About Kettlebell Catalyst",b=>{
+  function openAbout(firstRun){ openModal(firstRun ? "Welcome to Kettlebell Catalyst" : "About Kettlebell Catalyst",b=>{
     b.append(
       P("Kettlebell Catalyst intends to lower workout activation energy by providing simple programs that meet the time requirements of busy people, with as little equipment and setup as possible."),
       el("p",{},"The premise in a nutshell: find one kettlebell (preferably one on the lighter side; the ",
@@ -920,14 +925,22 @@
       P("There is no app to install, although the site does save your preferences on your device."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
       P("All of your preferences are saved on your device."),
-      el("p",{className:"ok",textContent:"Version 1.7.2"}),
+      el("p",{className:"ok",textContent:"Version 1.7.4"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
       b.append(isLink ? el("p",{},el("a",{href:FEEDBACK,textContent:"Send feedback",target:"_blank",rel:"noopener",style:"color:var(--accent2)"}))
                       : P("Email: "+FEEDBACK)); }
     else b.append(P("A feedback link is coming soon. In the meantime, tell the person who shared this with you."));
-  });
+    if(firstRun){
+      const hl=el("p",{className:"ok"}); hl.append("New to kettlebells? Please read the ");
+      const a=el("a",{href:"#",textContent:"health note",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); $("icoHealth").onclick(); };
+      hl.append(a," first."); b.append(hl);
+      const go=el("button",{className:"primary",textContent:"Get started"}); go.style.width="100%"; go.style.marginTop="14px"; go.onclick=closeModal;
+      b.append(go);
+    }
+  }); }
+  $("icoAbout").onclick=()=>openAbout(false);
 
   // ---------- Share codes (letters & digits only, so they survive in a link) ----------
   const B32="abcdefghijklmnopqrstuvwxyz234567";
@@ -1180,6 +1193,7 @@
 
   reset();
   checkHash();
+  try{ if(!localStorage.getItem("kb45_welcomed")){ localStorage.setItem("kb45_welcomed","1"); if($("modal").hidden) openAbout(true); } }catch(e){}
   if(/^https?:$/.test(location.protocol) && !/claude/i.test(location.hostname)) loadLists();
   // Offline support: only on the real site (kbcatalyst.ca or GitHub Pages), never inside a preview frame
   try{ if("serviceWorker" in navigator && /kbcatalyst\.ca$|github\.io$/i.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){}
