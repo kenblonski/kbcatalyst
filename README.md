@@ -1,6 +1,6 @@
 # Kettlebell Catalyst
 
-**One bell. One phone. Every day.**
+**One bell. Every day.**
 
 Kettlebell Catalyst is a free kettlebell workout timer that runs in your phone's browser. No app to install, no account, no subscription.
 

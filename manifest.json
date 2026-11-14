@@ -1,7 +1,7 @@
 {
   "name": "Kettlebell Catalyst",
   "short_name": "KB Catalyst",
-  "description": "One bell. One phone. Every day. A free kettlebell workout timer.",
+  "description": "One bell. Every day. A free kettlebell workout timer.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

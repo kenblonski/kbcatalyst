@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kettlebell Catalyst</title>
-<meta name="description" content="One bell. One phone. Every day. A free kettlebell workout timer that plans your session and talks you through every set.">
+<meta name="description" content="One bell. Every day. A free kettlebell workout timer that plans your session and talks you through every set.">
 <meta name="theme-color" content="#0f1115">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -16,7 +16,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Kettlebell Catalyst">
 <meta property="og:title" content="Kettlebell Catalyst">
-<meta property="og:description" content="One bell. One phone. Every day. A free kettlebell workout timer.">
+<meta property="og:description" content="One bell. Every day. A free kettlebell workout timer.">
 <meta property="og:url" content="https://kbcatalyst.ca/">
 <meta property="og:image" content="https://kbcatalyst.ca/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -34,7 +34,7 @@
   .wrap{max-width:640px;margin:0 auto}
   header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
   h1{font-size:20px;margin:0;letter-spacing:.3px}
-  .sub{color:var(--muted);font-size:13px;margin-top:2px;font-variant-numeric:tabular-nums}
+  .sub{color:var(--accent);font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
   .icons{display:flex;gap:6px;flex:none}
   .icons button{width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:12px;color:var(--text)}
   .icons svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -52,7 +52,18 @@
   .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
   .ok{color:var(--accent2);font-size:13px}
   .meta{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .quote{background:#000;border-radius:14px;padding:14px 16px;min-height:96px;margin:0 0 12px;display:flex;flex-direction:column;justify-content:center}
+  .quote .ql{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .quote .qt{font-size:17px;line-height:1.4;color:var(--text)}
+  .quote.sponsor .ql{color:var(--accent)}
+  .quote.house{cursor:pointer}
+  .houserow{display:flex;align-items:center;gap:14px}
+  .houseicon{width:56px;height:56px;flex:none}
+  .houserow b{display:block;font-size:18px;color:var(--text)}
+  .houserow span{display:block;font-size:15px;color:var(--accent);font-weight:700;margin-top:2px}
+  .quote a{color:var(--accent)}
+  .quote .qby{display:block;font-size:14px;color:var(--muted);margin-top:6px}
   .now{text-align:center}
   .slot{color:var(--text);font-size:26px;font-weight:800;letter-spacing:.5px;font-variant-numeric:tabular-nums}
   .slot .of{color:var(--muted);font-weight:600;font-size:18px}
@@ -60,15 +71,16 @@
   .slot .rest{display:block;color:var(--muted);font-size:13px;font-weight:500;margin-top:2px}
   .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:middle;text-transform:none;letter-spacing:0}
   .ex{font-size:clamp(26px,7vw,40px);font-weight:700;line-height:1.15;margin:10px 0 6px}
-  .cue{color:var(--muted);font-size:15px;min-height:20px}
-  .clock{font-size:clamp(64px,22vw,120px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin:14px 0 6px;color:var(--accent)}
+  .cue{color:var(--muted);font-size:15px;min-height:20px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .clock{font-size:clamp(64px,22vw,120px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin:8px 0 4px;color:var(--accent)}
   .clock.low{color:var(--warn)}
   .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:10px}
   .bar>i{display:block;height:100%;width:0;background:var(--accent2);transition:width .2s linear}
-  .next{margin-top:14px;font-size:15px;color:var(--muted)}
+  .next{margin-top:10px;font-size:15px;color:var(--muted)}
   .next b{color:var(--text)}
   .next .dose{color:var(--accent2);font-weight:600}
-  .controls{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin:14px 0}
+  .controls{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin:8px 0 10px}
+  .controls button{padding:10px 8px}
   button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 10px;font-size:16px;cursor:pointer}
   button:active{transform:scale(.98)}
   button.primary{background:var(--accent);border-color:var(--accent);color:#1a1205;font-weight:700}
@@ -111,7 +123,8 @@
   details[open] summary::before{content:"▾ ";}
   .grp{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px}
   .lib li.off .nm{color:var(--muted);text-decoration:line-through}
-  .lib input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:var(--accent2)}
+  .lib input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:var(--accent2);margin:0 2px}
+  .lib li .nm{cursor:pointer}
   .step{display:flex;align-items:center;gap:4px;flex:none}
   .step button{padding:4px 10px;font-size:15px;border-radius:8px}
   .step span{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
@@ -127,7 +140,7 @@
   <header>
     <div>
       <h1 id="title">Kettlebell Catalyst</h1>
-      <div class="sub"><span id="sub">45 min · Full day</span> · <span id="meta">0:00 / 45:00</span></div>
+      <div class="sub"><span id="meta">0:00 / 45:00</span> · <span id="sub">Full day</span></div>
     </div>
     <div class="icons">
       <button id="icoHealth" aria-label="Health disclaimer" title="Health disclaimer"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
@@ -158,6 +171,7 @@
     <button id="startBtn" class="primary">Start</button>
     <button id="skipBtn" aria-label="Next">Skip ▶︎</button>
   </div>
+  <div class="quote" id="quoteBox" aria-live="polite"><div class="ql" id="qLabel">Ready when you are</div><div class="qt" id="qText">Pick up your bell. Press Start when you're ready.</div></div>
 
   <div class="row">
     <label>Length
@@ -241,9 +255,9 @@
   // mode: warmup | both | full | easy ; freq = times per session ; sided = L/R pair
   const D=(id,name,cue,tag,mode,sided,freq)=>({id,name,cue,tag,mode,sided:!!sided,freq:freq||1});
   const DEFAULTS=[
-    D("halo","Halos","Slow circles around the head, both directions · 5 each way","warm-up","warmup"),
-    D("atw","Around-the-World Passes","Pass the bell around your waist, switching direction halfway · 10 passes","warm-up","warmup"),
-    D("pry","Prying Goblet Squat","Sit deep, push knees out with elbows · 5 slow reps","warm-up","warmup"),
+    D("halo","Halos","Slow circles, both ways · 5 each way","warm-up","warmup"),
+    D("atw","Around-the-World Passes","Switch halfway · 10 passes","warm-up","warmup"),
+    D("pry","Prying Goblet Squat","Sit deep, elbows push knees out · 5 slow reps","warm-up","warmup"),
     D("kbdl","Kettlebell Deadlift","Hinge, flat back, stand tall · 8 reps","warm-up","warmup"),
     D("bridge","Glute Bridge","Bell on hips, squeeze at the top · 10 reps","warm-up","warmup"),
 
@@ -280,11 +294,11 @@
     D("thruster","Goblet Thruster","Squat and press in one move · 6 reps","squat","full"),
 
     D("smarch","Suitcase March","Bell at your side, slow high knees · 30 s","carry","easy",1),
-    D("armbar","Arm Bar","On your back, bell pressed up, roll gently to the side · 30 s","mobility","easy",1),
+    D("armbar","Arm Bar","Bell pressed up, roll to the side · 30 s","mobility","easy",1),
     D("splank","Side Plank","On elbow, hips high · 20–30 s","core","easy",1),
     D("birddog","Bird Dog","Opposite arm and leg, slow · 6 reps","core","easy"),
     D("hipflex","Half-Kneeling Hip Flexor Stretch","Tuck the pelvis, breathe · 30 s","mobility","easy",1),
-    D("cossack","Cossack Squat (bodyweight)","Shift side to side, only as deep as is comfortable · 4 reps","mobility","easy"),
+    D("cossack","Cossack Squat (bodyweight)","Side to side, comfortable depth · 4 reps","mobility","easy"),
     D("bwsplit","Bodyweight Split Squat","Slow and controlled · 6 reps","lunge","easy",1),
     D("gcarry","Goblet Carry","Bell at chest, walk tall · 30 s","carry","easy"),
     D("incpush","Incline Push-Ups","Hands on a bench or counter · 8–10 reps","press","easy"),
@@ -414,8 +428,118 @@
   function renderHead(){
     $("easyBtn").textContent=settings.easy?"Easy day: On":"Easy day: Off";
     $("easyBtn").classList.toggle("on",settings.easy);
-    $("sub").textContent=settings.len+" min · "+(settings.easy?"Easy day":"Full day");
+    $("sub").textContent=settings.easy?"Easy day":"Full day";
   }
+  // ---------- Something to read under the controls: one card per set ----------
+  // Original lines (no attributed quotes). Sponsor slot stays off until there's a deal.
+  // Sponsor messages share the panel with the motivational lines, alternating set by set.
+  // Empty = no sponsor: the panel alternates motivational lines with form tips instead.
+  // For now the slot promotes Kettlebell Catalyst itself (like the sticker). Swap in a real sponsor later, e.g.
+  // {label:"Sponsor", text:"Today's bell: the Bells of Steel 6–12 kg adjustable", url:"https://bellsofsteel.com/collections/adjustable-kettlebells"}
+  const SPONSORS=[
+    {label:"Kettlebell Catalyst", text:"One bell. Every day.", sub:"kbcatalyst.ca", house:true},
+    {label:"Kettlebell Catalyst", text:"Know someone with a kettlebell?", sub:"Send them kbcatalyst.ca", house:true},
+    {label:"Kettlebell Catalyst", text:"Keep the chain going.", sub:"Share today's workout when you finish", house:true}
+  ];
+  let LINES=[
+      "Showing up is the workout. Everything else is a bonus.",
+      "One more set. Then decide.",
+      "Strong is a skill.",
+      "You don't need motivation. You need the next rep.",
+      "Small, boring, daily. That's how it works.",
+      "The bell doesn't care how you feel. That's the point.",
+      "Breathe out on the effort.",
+      "Slow progress is still progress.",
+      "Easy days count. Missing days don't.",
+      "Keep the chain alive.",
+      "Today's set is tomorrow's warm-up.",
+      "Make it look easy. Then make it easy.",
+      "You're building the kind of person you want to be.",
+      "Steady beats heroic.",
+      "Five minutes in, you're already glad you started.",
+      "Light bell, perfect reps.",
+      "Your future self is watching this set.",
+      "Consistency is a superpower nobody brags about.",
+      "Earn the next bell size...slowly.",
+      "This is the part that changes you.",
+      "Quiet effort, loud results.",
+      "Be the person who finishes.",
+      "Strength is built in the reps you almost skipped.",
+      "Halfway is the hardest place to be. Keep going.",
+      "Discipline is just remembering what you want.",
+      "Good enough, every day, beats perfect, sometimes.",
+      "Hips, breath, focus. Repeat.",
+      "The best workout is the one you actually do.",
+      "A measured workout today. A stronger you tomorrow.",
+      "I am a slow walker, but I never walk back. — Attributed to Abraham Lincoln"
+  ];
+  let TIPS=[
+    "Swings: the hips snap, the bell floats. Your arms are just ropes.",
+    "Swings: hike the bell high between your thighs, like passing a football.",
+    "Swings: at the top, stand tall. Glutes tight, knees locked, ribs down.",
+    "Get-ups: eyes on the bell, arm locked out, the whole way.",
+    "Get-ups: slow is smooth, smooth is strong.",
+    "Presses: squeeze the handle, brace your abs, then press.",
+    "Presses: wrist straight. The bell rests on your forearm, not your hand.",
+    "Rack: elbow tucked, bell in the crook of your arm, wrist neutral.",
+    "Squats: sit between your heels, chest up, knees out.",
+    "Deadlifts: push the floor away. Flat back, bell close.",
+    "Rows: pull to the hip, not the chest.",
+    "Carries: walk tall, short steps, don't lean.",
+    "Cleans: the bell travels close to the body. No banging the forearm.",
+    "Snatches: punch through at the top so the bell doesn't flip over.",
+    "Windmills: hips back, eyes on the bell, go only as far as is comfortable.",
+    "Lunges: step long enough that the front knee stays over the ankle.",
+    "Planks: squeeze glutes and quads. A tight body is a safe body.",
+    "Breathe out sharply on each swing, like a short hiss.",
+    "Grip fading? Shake it out and reset. Form first.",
+    "If a rep feels sloppy, park it. Rest out the interval.",
+    "Feet flat, toes gripping the floor. Root down.",
+    "Neck long, gaze a few feet ahead on hinges.",
+    "Heavier soon? Only when every rep of every set looks clean.",
+    "Pick the bell up and set it down with a flat back, every time.",
+    "Sip water between sets if you need to. No rush.",
+    "Chalk or a towel helps if your hands sweat.",
+    "Wear flat shoes, or go barefoot on a safe floor.",
+    "Leave room around you. Swings travel further than you think.",
+    "Sore today? Make it an easy day and keep the chain.",
+    "Finish every set with a rep you're proud of."
+  ];
+  // Editable lists: quotes.txt and tips.txt next to index.html (one line each; # starts a comment)
+  async function loadLists(){
+    const get=async f=>{ try{ const r=await fetch(f,{cache:"no-cache"}); if(!r.ok) return null;
+      const lines=(await r.text()).split(/\r?\n/).map(x=>x.trim()).filter(x=>x && !x.startsWith("#")); return lines.length>=3 ? lines : null; }catch(e){ return null; } };
+    const [q,t]=await Promise.all([get("quotes.txt"),get("tips.txt")]);
+    if(q) LINES=q; if(t) TIPS=t; if(q||t) renderQuote();
+  }
+  function splitCredit(line){ const m=String(line).match(/^(.*\S)\s+(?:—|–|-{1,2})\s+(\S.*)$/); return m ? {text:m[1], by:m[2]} : {text:line, by:""}; }
+  function quoteFor(i){
+    const seed=curSeed()+i*7;
+    if(i%2===0){ const c=splitCredit(LINES[seed%LINES.length]); return {label:"Keep going", text:c.text, by:c.by}; }
+    if(SPONSORS.length){ const sp=SPONSORS[Math.floor(i/2)%SPONSORS.length]; return Object.assign({label:"Sponsor", sponsor:true}, sp); }
+    return {label:"Form tip", text:TIPS[seed%TIPS.length]};
+  }
+  function showQuote(q){
+    const box=$("quoteBox"); box.classList.toggle("sponsor",!!q.sponsor); box.classList.toggle("house",!!q.house);
+    box.onclick = q.house ? openShare : null;
+    $("qLabel").textContent=q.label;
+    const t=$("qText"); t.textContent="";
+    if(q.house){   // like the sticker: app icon on the left, two lines of text beside it
+      const row=document.createElement("div"); row.className="houserow";
+      const c=document.createElement("canvas"); c.width=112; c.height=112; c.className="houseicon";
+      try{ drawAppIcon(c.getContext("2d"),0,0,112); }catch(e){}
+      const tx=document.createElement("div"); const b=document.createElement("b"); b.textContent=q.text; const sm=document.createElement("span"); sm.textContent=q.sub;
+      tx.append(b,sm); row.append(c,tx); t.appendChild(row); return;
+    }
+    if(q.by){ const qq=document.createElement("span"); qq.textContent="“"+q.text+"”"; const by=document.createElement("span"); by.className="qby"; by.textContent="— "+q.by; t.append(qq,by); return; }
+    if(q.url){ const a=document.createElement("a"); a.href=q.url; a.target="_blank"; a.rel="noopener"; a.textContent=q.text+" →"; t.appendChild(a); } else t.textContent=q.text;
+  }
+  function renderQuote(){
+    if(prerolling) return showQuote({label:"Get ready", text:"Bell in place, feet set, phone where you can see it."});
+    if(idx<0) return showQuote({label:"Ready when you are", text:"Pick up your bell. Press Start when you're ready."});
+    showQuote(quoteFor(idx));
+  }
+
   function renderNow(){
     renderHead();
     if(idx<0){
@@ -426,12 +550,13 @@
       if(plan[0]) nextHTML("First up:",plan[0]); else $("nextLbl").textContent="";
       $("bar").style.width="0%";
       $("meta").textContent=`0:00 / ${fmt(total())}`;
-      return;
+      renderQuote(); return;
     }
     const e=plan[idx], nx=plan[idx+1];
     $("slotLbl").className="slot"; $("slotLbl").innerHTML=`${idx+1}<span class="of"> / ${plan.length}</span><span class="tag"></span>`;
     $("slotLbl").querySelector(".tag").textContent=e[2];
     $("exName").textContent=e[0]; $("exCue").textContent=e[1];
+    renderQuote();
     if(nx) nextHTML("Next:",nx);
     else $("nextLbl").textContent="Last one: finish strong";
   }
@@ -477,7 +602,7 @@
     endAt=performance.now()+15000;
     $("slotLbl").className="slot ready"; $("slotLbl").innerHTML=`Get ready<span class="rest"></span>`; $("slotLbl").querySelector(".rest").textContent=intro;
     $("exName").textContent=first[0]; $("exCue").textContent=first[1]; nextHTML("First up:",first);
-    $("startBtn").textContent="Cancel";
+    $("startBtn").textContent="Cancel"; renderQuote();
     if(settings.voice && window.speechSynthesis){
       try{
         const ss=window.speechSynthesis; if(ss.speaking||ss.pending) ss.cancel(); ss.resume();
@@ -504,13 +629,21 @@
     markDone();
     $("finishNote").textContent=`${plan.length} intervals · ${fmt(total())}. Day ${streak()} of your chain. Cool down with a walk and a few deep breaths.`;
     $("finishChain").textContent=chainRow(14);
+    showQuote({label:"Done", text:"That's one more link in the chain. See you tomorrow."});
     $("startBtn").textContent="Start"; idx=plan.length; renderList(); idx=-1;
     $("meta").textContent=`${fmt(total())} / ${fmt(total())}`;
     if(dirty){ rebuild(); renderList(); }
   }
   const inProgress=()=> idx>=0;
-  function changed(){ // settings/library changed
-    if(inProgress()){ dirty=true; $("pending").hidden=false; renderLib(); }
+  function changed(kind){ // settings/library changed
+    if(inProgress() || prerolling){
+      if(kind==="lib"){
+        // Library edits apply straight away to the sets you haven't done yet; finished sets stay as they were
+        const fresh=buildPlan().plan, keep=Math.max(0,idx+1);
+        if(fresh.length===plan.length){ plan=plan.slice(0,keep).concat(fresh.slice(keep)); renderNow(); renderList(); renderLib(); return; }
+      }
+      dirty=true; $("pending").hidden=false; renderLib();
+    }
     else reset();
   }
 
@@ -527,7 +660,9 @@
         const li=document.createElement("li"); if(!x.on) li.classList.add("off");
         const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=x.on;
         cb.onchange=()=>{ setOver(x.id,{on:cb.checked}); };
+        cb.setAttribute("aria-label",(x.on?"Switch off ":"Switch on ")+x.name);
         const nm=document.createElement("span"); nm.className="nm"; nm.textContent=x.name;
+        nm.onclick=()=>{ cb.checked=!cb.checked; cb.onchange(); };   // tapping the name works too
         if(x.sided){ const b=document.createElement("span"); b.className="lr"; b.textContent="L/R"; nm.appendChild(b); }
         li.append(cb,nm);
         const ctl=document.createElement("div"); ctl.className="ctl"; li.appendChild(ctl);
@@ -579,7 +714,7 @@
         }
         if(x.custom){
           const d=document.createElement("button"); d.className="del"; d.textContent="✕"; d.setAttribute("aria-label","Delete");
-          d.onclick=()=>{ user.custom=user.custom.filter(c=>c.id!==x.id); delete user.over[x.id]; saveUser(); changed(); renderLib(); };
+          d.onclick=()=>{ user.custom=user.custom.filter(c=>c.id!==x.id); delete user.over[x.id]; saveUser(); changed("lib"); renderLib(); };
           li.appendChild(d);
         }
         ul.appendChild(li);
@@ -587,20 +722,20 @@
       box.appendChild(ul);
     });
   }
-  function setOver(id,patch){ user.over[id]=Object.assign({},user.over[id]||{},patch); saveUser(); changed(); renderLib(); }
+  function setOver(id,patch){ user.over[id]=Object.assign({},user.over[id]||{},patch); saveUser(); changed("lib"); renderLib(); }
 
   $("addBtn").onclick=()=>{
     const name=$("addName").value.trim(); if(!name){ $("addName").focus(); return; }
     const mode=$("addMode").value;
     user.custom.push({id:"c"+Date.now().toString(36), name, cue:$("addCue").value.trim()||"Steady pace", tag:"custom", mode, sided:$("addSided").checked, freq:1, custom:true});
     saveUser(); $("addName").value=""; $("addCue").value=""; $("addSided").checked=false;
-    changed(); renderLib();
+    changed("lib"); renderLib();
   };
   let restoreArmed=false;
   $("restoreBtn").onclick=()=>{
     if(!restoreArmed){ restoreArmed=true; $("restoreBtn").textContent="Tap again to restore (removes your changes)"; setTimeout(()=>{restoreArmed=false;$("restoreBtn").textContent="Restore default library";},4000); return; }
     restoreArmed=false; $("restoreBtn").textContent="Restore default library";
-    user={over:{},custom:[]}; saveUser(); changed(); renderLib();
+    user={over:{},custom:[]}; saveUser(); changed("lib"); renderLib();
   };
 
   // ---------- Audio / voice / wake lock ----------
@@ -785,7 +920,7 @@
       P("There is no app to install, although the site does save your preferences on your device."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
       P("All of your preferences are saved on your device."),
-      el("p",{className:"ok",textContent:"Version 1.5.2"}),
+      el("p",{className:"ok",textContent:"Version 1.7.1"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -823,7 +958,7 @@
   const ratio=()=> plan.length+"/"+settings.len;
   function offList(){ return library().filter(x=>!x.on && !x.custom).map(x=>x.name.replace(/ \(.*\)$/,"")); }
 
-  const TAGLINE="One bell. One phone. Every day.";
+  const TAGLINE="One bell. Every day.";
   let cardNote="";
   function shareImage(){
     const c=document.createElement("canvas"); c.width=1080; c.height=1080; const g=c.getContext("2d");
@@ -1045,6 +1180,7 @@
 
   reset();
   checkHash();
+  if(/^https?:$/.test(location.protocol) && !/claude/i.test(location.hostname)) loadLists();
   // Offline support: only on the real site (kbcatalyst.ca or GitHub Pages), never inside a preview frame
   try{ if("serviceWorker" in navigator && /kbcatalyst\.ca$|github\.io$/i.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){}
 })();
