@@ -35,6 +35,8 @@
   header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
   h1{font-size:20px;margin:0;letter-spacing:.3px}
   .sub{color:var(--accent);font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  header>div:first-child{flex:1;min-width:0}
+  .prog{color:var(--muted,#9aa0a6);font-size:14px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .icons{display:flex;gap:6px;flex:none}
   .icons button{width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:12px;color:var(--text)}
   .icons svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -146,7 +148,8 @@
   <header>
     <div>
       <h1 id="title">Kettlebell Catalyst</h1>
-      <div class="sub"><span id="meta">0:00 / 45:00</span> · <span id="sub">Full day</span></div>
+      <div class="sub"><span id="meta">0:00 / 45:00</span></div>
+      <div class="prog" id="sub">Full day</div>
     </div>
     <div class="icons">
       <button id="icoHealth" aria-label="Health disclaimer" title="Health disclaimer"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
@@ -241,7 +244,7 @@
   <div class="note" id="voiceDiag" hidden></div>
   <div class="warnbox" id="pending" hidden>Changes will apply when you reset or finish this workout.</div>
 
-  <div class="note">Easy, steady pace: do the suggested reps, then rest for the rest of the interval. Left/right moves always come in pairs. Your mix, settings and library are saved on this device. <b>Easy day</b> builds the session from exercises marked for easy days.<br><br>Consider increasing the number of reps in each set over time as you get more comfortable with each exercise. If and when you increase weight, consider reducing the number of reps again to make the transition as easy as possible.</div>
+  <div class="note">Easy, steady pace: do the suggested reps, then rest for the rest of the interval. Left/right moves always come in pairs. Your mix, settings and library are saved on this device. <b>Easy day</b> builds the session from exercises marked for easy days.<br><br>Consider increasing the number of reps in each set over time as you get more comfortable with each exercise. If and when you increase weight, consider reducing the number of reps again to make the transition as easy as possible.<br><br>Use good form, don't do any exercises you are uncomfortable or unfamiliar with, and use your best judgement to work out safely.</div>
 
   <h2>Today's order</h2>
   <ol id="list"></ol>
@@ -356,14 +359,15 @@
   if(!settings.opts) settings.opts={ regular:{len:settings.len||45,int:settings.int||45}, easy:{len:settings.len||45,int:settings.int||45},
                                      sg:{int:45,rounds:10}, cps:{cad:settings.cad,sets:settings.sets} };
   function cpsNote(){ const [c,p,q]=(settings.cad||"2-1-3").split("-").map(Number), pl=(n,w,ws)=>n+" "+(n===1?w:ws);
-    return `Warm-up, then every minute on the minute: ${pl(c,"clean","cleans")}, ${pl(p,"press","presses")} and ${pl(q,"racked squat","racked squats")} on one side, then switch.`; }
+    const every=(settings.int||60)===60 ? "every minute on the minute" : `every ${settings.int}s`;
+    return `Warm-up, then ${every}: ${pl(c,"clean","cleans")}, ${pl(p,"press","presses")} and ${pl(q,"racked squat","racked squats")} on one side, then switch.`; }
   function fixRounds(){   // C·P·S alternates sides, so rounds are even 2–60; swings + get-ups 2–12, even
     const ev=(v,lo,hi,d)=>{ v=Math.round((+v||d)/2)*2; return Math.min(hi,Math.max(lo,v)); };
     settings.sets=ev(settings.sets,2,60,6); settings.sgRounds=ev(settings.sgRounds,2,12,10); }
   function storeOpts(){ const p=settings.program||"regular";
-    settings.opts[p] = p==="cps" ? {cad:settings.cad,sets:settings.sets} : p==="sg" ? {int:settings.int,rounds:settings.sgRounds} : {len:settings.len,int:settings.int}; }
+    settings.opts[p] = p==="cps" ? {cad:settings.cad,sets:settings.sets,int:settings.int} : p==="sg" ? {int:settings.int,rounds:settings.sgRounds} : {len:settings.len,int:settings.int}; }
   function loadOpts(p){ const o=settings.opts[p]||{};
-    if(p==="cps"){ settings.cad=o.cad||"2-1-3"; settings.sets=o.sets||6; }
+    if(p==="cps"){ settings.cad=o.cad||"2-1-3"; settings.sets=o.sets||6; settings.int=o.int||60; }
     else if(p==="sg"){ settings.int=o.int||45; settings.sgRounds=o.rounds||10; }
     else { settings.len=o.len||45; settings.int=o.int||45; }
     fixRounds(); }
@@ -427,7 +431,7 @@
   // regular | easy | sg (swings + get-ups) | cps (clean · press · squat, EMOM). Cool-down is an optional extra.
   let cooling=false, afterFinish=false;
   const PROG=()=> settings.program || (settings.easy ? "easy" : "regular");
-  const IV=()=> cooling ? 40 : (PROG()==="cps" ? 60 : settings.int);
+  const IV=()=> cooling ? 40 : (settings.int||45);
   const PROG_NAMES={regular:"Regular", easy:"Easy day", sg:"Swings + Get-ups", cps:"Clean · Press · Squat"};
   function progLabel(){ const p=PROG();
     if(p==="sg") return "Swings + Get-ups · "+(settings.sgRounds||10)+" + "+(settings.sgRounds||10);
@@ -453,7 +457,10 @@
     }
     if(prog==="cps"){
       const [c,pr,sq]=(settings.cad||"2-1-3").split("-").map(Number), N=settings.sets||6, w=warmPart(lib), main=[];
-      for(let i=1;i<=N;i++) main.push([`Clean, Press, Squat — ${i%2?"Left":"Right"} (${i} of ${N})`,`Same side, all three · ${c} clean${c>1?"s":""}, ${pr} press${pr>1?"es":""}, ${sq} racked squat${sq>1?"s":""}`,"complex","cps"]);
+      const reps=`${c} clean${c>1?"s":""}, ${pr} press${pr>1?"es":""}, ${sq} racked squat${sq>1?"s":""}`;
+      for(let i=1;i<=N;i++){ const e=[`Clean, Press, Squat — ${i%2?"Left":"Right"} (${i} of ${N})`,"Same side, all three","complex","cps"];
+        e.say = i===1 ? reps : "";       // reps are spoken once, on the first round; the screen stays short
+        main.push(e); }
       return {plan:w.concat(main), empty:false, slots:w.length+N};
     }
     const slots=Math.max(1,Math.round(settings.len*60/IV()));
@@ -494,7 +501,7 @@
   // dose = the reps/time part of the cue (after the last "·"); short custom cues count too
   function dose(e){ const c=(e&&e[1])||""; const i=c.lastIndexOf("·"); if(i>=0) return c.slice(i+1).trim(); return (c.length<=24 && /\d/.test(c)) ? c.trim() : ""; }
   function sayDose(e){ return dose(e).replace(/(\d)\s*[–-]\s*(\d)/g,"$1 to $2").replace(/(\d)\s*s\b/g,"$1 seconds").replace(/×/g," times "); }
-  function announce(e){ const d=sayDose(e); return (speak(e[0]) + (d? ", "+d : "")).replace(/\breps\b/gi,"repetitions").replace(/\brep\b/gi,"repetition"); }
+  function announce(e){ if(e && e.say!=null) return (speak(e[0])+(e.say?", "+e.say:"")); const d=sayDose(e); return (speak(e[0]) + (d? ", "+d : "")).replace(/\breps\b/gi,"repetitions").replace(/\brep\b/gi,"repetition"); }
   function nextHTML(label,e){ $("nextLbl").innerHTML=label+` <b></b><span class="dose"></span>`; $("nextLbl").querySelector("b").textContent=e[0]; const d=dose(e); $("nextLbl").querySelector(".dose").textContent = d ? " · "+d : ""; }
 
   function rebuild(){ built=buildPlan(); plan=built.plan; dirty=false; $("pending").hidden=true; }
@@ -516,7 +523,7 @@
     $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
     const mix = p==="regular"||p==="easy";
     $("lenWrap").hidden = $("scaleWrap").hidden = !mix;
-    $("intWrap").hidden = p==="cps"; $("intLbl").textContent = p==="sg" ? "Swing interval" : "Interval";
+    $("intWrap").hidden = false; $("intLbl").textContent = p==="sg" ? "Swing interval" : "Interval";
     $("cadWrap").hidden = $("setsWrap").hidden = p!=="cps";
     $("sgWrap").hidden = p!=="sg";
     $("optNote").textContent = p==="sg" ? `Warm-up, then ${settings.sgRounds||10} sets of swings (1- or 2-handed) every ${settings.int||45}s, followed by ${settings.sgRounds||10} get-ups every 60s, alternating sides.` : p==="cps" ? cpsNote() : "";
@@ -675,6 +682,7 @@
     if(i>=plan.length){ finish(); return; }
     idx=Math.max(0,i); saidNext=false; lastBeep=null;
     remainMs=DUR(idx)*1000; endAt=performance.now()+remainMs;
+    if(running) requestWake();
     renderNow(); renderList();
     if(running){ beep(auto?990:880,0.22); if(!quiet && settings.callStart!==false) say(announce(plan[idx])); }
     const cur=document.querySelector("li.cur"); if(cur&&auto&&settings.scroll) cur.scrollIntoView({block:"nearest",behavior:"smooth"});
@@ -692,7 +700,7 @@
   function startPreroll(){
     const first=plan[0], P_=PROG(), setPre=(P_==="regular"||P_==="easy")?"Set 1, ":"";
     const intro = P_==="sg" ? `Swings and get-ups. A short warm-up, then ${settings.sgRounds||10} sets of swings every ${IV()} seconds, followed by ${settings.sgRounds||10} get-ups, one every minute.`
-               : P_==="cps" ? `Clean, press, squat, every minute on the minute. A short warm-up, then ${settings.sets||6} rounds of ${(settings.cad||"2-1-3").split("-").join(", ")}.`
+               : P_==="cps" ? `Clean, press, squat, ${IV()===60?"every minute on the minute":"every "+IV()+" seconds"}. A short warm-up, then ${settings.sets||6} rounds of ${(settings.cad||"2-1-3").split("-").join(", ")}.`
                : `${settings.len} minute ${P_==="easy"?"easy":"full"} workout. ${plan.length} intervals, ${IV()} seconds each.`;
     voiceUnlocked=true;                     // the first phrase below is spoken inside this tap
     prerolling=true; running=true; lastBeep=null;
@@ -726,12 +734,12 @@
     if(!plan.length){ cooling=false; rebuild(); showQuote({label:"Cool-down", text:"Switch on some cool-down moves in the exercise library first."}); $("startBtn").textContent="Start"; return; }
     $("finish").style.display="none"; $("nowCard").style.display="";
     voiceUnlocked=true; unlockAudio(); requestWake(); running=true; idx=-1; renderHead();
-    say("Cool-down. Nice work.");
+    say("Cool-down. First up: "+announce(plan[0]), null, true);      // spoken inside the tap, so the phone allows it
     go(0,false,true); $("startBtn").textContent="Pause"; clearInterval(timer); timer=setInterval(tick,200); runUI(); renderList();
   }
   function finishCooldown(){
     running=false; clearInterval(timer); releaseWake(); setTimeout(runUI,0); setTimeout(stopPlaybackMode,4000);
-    beep(990,0.15); say("Cool-down complete. See you tomorrow.");
+    beep(990,0.15); { const n=streak(); say("Cool-down complete. "+(n>1 ? `That is ${n} workouts in a row.` : "That's day one of your chain.")+" See you tomorrow."); }
     cooling=false; idx=-1; rebuild(); renderHead(); renderList();
     $("nowCard").style.display="none"; $("finish").style.display="block";
     $("finishNote").textContent="Cool-down done. That's the whole session. "+$("finishNote").textContent.replace(/^Cool-down done\. That's the whole session\. /,"");
@@ -940,15 +948,25 @@
     if(!settings.voice && !immediate) return;
     try{
       const ss=window.speechSynthesis;
+      try{ ss.resume(); }catch(e){}      // Android can leave speech paused after the screen sleeps
       const go=()=>{ try{ speakWatched(t,hooks,0); }catch(e){ hooks&&hooks.error&&hooks.error({error:String(e)}); } };
       if(immediate){ if(ss.speaking||ss.pending) ss.cancel(); go(); return; }
       // iOS drops an utterance spoken immediately after cancel(); only cancel if busy, then wait a beat
       if(ss.speaking||ss.pending){ ss.cancel(); setTimeout(go,120); } else go();
     }catch(e){}
   }
-  async function requestWake(){ try{ if("wakeLock" in navigator) wakeLock=await navigator.wakeLock.request("screen"); }catch(e){} }
-  function releaseWake(){ try{ wakeLock&&wakeLock.release(); }catch(e){} wakeLock=null; }
-  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&running) requestWake(); });
+  // Keep the screen on while a workout runs. Android can drop the lock quietly (notifications, battery saver,
+  // switching apps), so we take it again whenever it's lost and at every new set.
+  async function requestWake(){
+    try{
+      if(!("wakeLock" in navigator) || document.visibilityState!=="visible") return;
+      if(wakeLock && !wakeLock.released) return;
+      wakeLock=await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release",()=>{ wakeLock=null; if(running||prerolling) setTimeout(requestWake,500); });
+    }catch(e){ wakeLock=null; }
+  }
+  function releaseWake(){ const w=wakeLock; wakeLock=null; try{ w&&w.release(); }catch(e){} }
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"){ try{ speechSynthesis.resume(); }catch(e){} if(running) requestWake(); } });
 
   // ---------- Chain (dates of finished workouts only) ----------
   const dkey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -1063,7 +1081,7 @@
       el("p",{},"Prefer video? ",
         el("a",{href:"https://www.youtube.com/c/MarkWildman",target:"_blank",rel:"noopener",textContent:"Mark Wildman's YouTube channel",style:"color:var(--accent2)"}),
         " has detailed walkthroughs of the swing, get-up, clean and press, and more."),
-      el("p",{className:"ok",textContent:"Version 1.8"}),
+      el("p",{className:"ok",textContent:"Version 1.8.1"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -1269,7 +1287,7 @@
     const p=parseCode(h); if(!p) return;
     const clear=()=>{ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){ try{ location.hash=""; }catch(_){} } };
     const n=Math.round(p.s.len*60/p.s.int), pg=p.s.program||(p.s.easy?"easy":"regular");
-    const what = pg==="sg" ? `Swings + Get-ups workout: ${p.s.sgRounds||10} sets of swings and ${p.s.sgRounds||10} get-ups` : pg==="cps" ? `Clean · Press · Squat workout: ${p.s.sets||6} rounds of ${p.s.cad||"2-1-3"}, every minute` : null;
+    const what = pg==="sg" ? `Swings + Get-ups workout: ${p.s.sgRounds||10} sets of swings and ${p.s.sgRounds||10} get-ups` : pg==="cps" ? `Clean · Press · Squat workout: ${p.s.sets||6} rounds of ${p.s.cad||"2-1-3"}, ${(+p.s.int||60)===60?"every minute":"every "+p.s.int+" seconds"}` : null;
     if(p.h){ clear(); return; }               // setup codes (with a chain) are loaded from the share menu, not links
     if(!isReturningUser()){                   // new here: their first workout is the one they were sent
       applyCode(p); clear();
