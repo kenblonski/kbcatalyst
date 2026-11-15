@@ -63,6 +63,11 @@
   .houserow b{display:block;font-size:18px;color:var(--text)}
   .houserow span{display:block;font-size:15px;color:var(--accent);font-weight:700;margin-top:2px}
   .quote a{color:var(--accent)}
+  .wsel select{font-size:16px;font-weight:700;color:var(--accent)}
+  .opts{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 10px}
+  .opts label{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .opts [hidden]{display:none}
+  .optnote{flex-basis:100%;font-size:12px;color:var(--muted)}
   body.running .quote{margin-bottom:56px}
   .quote .qby{display:block;font-size:14px;color:var(--muted);margin-top:6px}
   .now{text-align:center}
@@ -175,7 +180,17 @@
   <div class="quote" id="quoteBox" aria-live="polite"><div class="ql" id="qLabel">Ready when you are</div><div class="qt" id="qText">Pick up your bell. Press Start when you're ready.</div></div>
 
   <div class="row">
-    <label>Length
+    <label class="wsel">Workout
+      <select id="progSel">
+        <option value="regular">Regular</option>
+        <option value="easy">Easy day</option>
+        <option value="sg">Swings + Get-ups</option>
+        <option value="cps">Clean · Press · Squat</option>
+      </select>
+    </label>
+  </div>
+  <div class="opts" id="optsBox">
+    <label id="lenWrap">Length
       <select id="lenSel">
         <option value="10">10 min</option>
         <option value="20">20 min</option>
@@ -184,18 +199,32 @@
         <option value="60">60 min</option>
       </select>
     </label>
-    <label>Interval
+    <label id="cadWrap" hidden>Cadence
+      <select id="cadSel"><option value="2-1-3">2-1-3</option><option value="3-2-5">3-2-5</option></select>
+    </label>
+    <label id="setsWrap" hidden>Rounds
+      <select id="setsSel">
+        <option value="2">2</option><option value="4">4</option><option value="6" selected>6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option><option value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20">20</option><option value="22">22</option><option value="24">24</option><option value="26">26</option><option value="28">28</option><option value="30">30</option><option value="32">32</option><option value="34">34</option><option value="36">36</option><option value="38">38</option><option value="40">40</option><option value="42">42</option><option value="44">44</option><option value="46">46</option><option value="48">48</option><option value="50">50</option><option value="52">52</option><option value="54">54</option><option value="56">56</option><option value="58">58</option><option value="60">60</option>
+      </select>
+    </label>
+    <label id="sgWrap" hidden>Rounds
+      <select id="sgSel">
+        <option value="2">2</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="10" selected>10</option><option value="12">12</option>
+      </select>
+    </label>
+    <label id="intWrap"><span id="intLbl">Interval</span>
       <select id="intSel">
         <option value="30">30 s</option>
         <option value="40">40 s</option>
         <option value="45" selected>45 s</option>
+        <option value="50">50 s</option>
         <option value="60">60 s</option>
       </select>
     </label>
-    <label><input type="checkbox" id="scaleChk" checked> Scale reps to interval</label>
+    <label id="scaleWrap"><input type="checkbox" id="scaleChk" checked> Scale reps to interval</label>
+    <div class="optnote" id="optNote"></div>
   </div>
   <div class="row">
-    <button class="small" id="easyBtn">Easy day: Off</button>
     <button class="small" id="mixBtn">New mix</button>
     <button class="small" id="resetBtn">Reset</button>
     <label><input type="checkbox" id="voiceChk" checked> Voice</label>
@@ -212,7 +241,7 @@
   <div class="note" id="voiceDiag" hidden></div>
   <div class="warnbox" id="pending" hidden>Changes will apply when you reset or finish this workout.</div>
 
-  <div class="note">Easy, steady pace: do the suggested reps, then rest for the rest of the interval. Left/right moves always come in pairs. Your mix, settings and library are saved on this device. <b>Easy day</b> builds the session from exercises marked for easy days; use a lighter bell for swings and get-ups.</div>
+  <div class="note">Easy, steady pace: do the suggested reps, then rest for the rest of the interval. Left/right moves always come in pairs. Your mix, settings and library are saved on this device. <b>Easy day</b> builds the session from exercises marked for easy days.<br><br>Consider increasing the number of reps in each set over time as you get more comfortable with each exercise. If and when you increase weight, consider reducing the number of reps again to make the transition as easy as possible.</div>
 
   <h2>Today's order</h2>
   <ol id="list"></ol>
@@ -233,6 +262,7 @@
           <option value="full">Full days only</option>
           <option value="easy">Easy days only</option>
           <option value="warmup">Warm-up</option>
+          <option value="cooldown">Cool-down</option>
         </select>
         <button class="small" id="addBtn">Add</button>
       </div>
@@ -291,19 +321,25 @@
     D("fpress","Floor Press","Pause on the floor · 6 reps","press","full",1),
     D("rsq","Racked Squat","Bell in rack, brace hard · 5 reps","squat","full",1),
     D("ocarry","Overhead Carry","Arm locked, biceps by ear · 20–30 s","carry","full",1),
-    D("pushup","Push-Ups","Steady tempo · 8–10 reps","press","full"),
+    D("pushup","Push-Ups","Bell down, steady tempo · 8–10 reps","press","full"),
     D("thruster","Goblet Thruster","Squat and press in one move · 6 reps","squat","full"),
 
     D("smarch","Suitcase March","Bell at your side, slow high knees · 30 s","carry","easy",1),
     D("armbar","Arm Bar","Bell pressed up, roll to the side · 30 s","mobility","easy",1),
-    D("splank","Side Plank","On elbow, hips high · 20–30 s","core","easy",1),
-    D("birddog","Bird Dog","Opposite arm and leg, slow · 6 reps","core","easy"),
+    D("splank","Side Plank","Bell down, on elbow, hips high · 20–30 s","core","easy",1),
+    D("birddog","Bird Dog","Bell down, opposite arm and leg, slow · 6 reps","core","easy"),
     D("hipflex","Half-Kneeling Hip Flexor Stretch","Tuck the pelvis, breathe · 30 s","mobility","easy",1),
-    D("cossack","Cossack Squat (bodyweight)","Side to side, comfortable depth · 4 reps","mobility","easy"),
     D("bwsplit","Bodyweight Split Squat","Slow and controlled · 6 reps","lunge","easy",1),
     D("gcarry","Goblet Carry","Bell at chest, walk tall · 30 s","carry","easy"),
-    D("incpush","Incline Push-Ups","Hands on a bench or counter · 8–10 reps","press","easy"),
-    D("gsqhold","Goblet Squat Hold","Sit in the bottom, chest up · 20–30 s","squat","easy")
+    D("incpush","Incline Push-Ups","Bell down, hands on a bench or counter · 8–10 reps","press","easy"),
+    D("gsqhold","Goblet Squat Hold","Sit in the bottom, chest up · 20–30 s","squat","easy"),
+
+    D("cd_walk","Easy Walk & Breathe","Slow steps, long exhales · 40 s","cool-down","cooldown"),
+    D("cd_hip","Hip Flexor Stretch","Half-kneel, tuck the pelvis · 30 s","cool-down","cooldown",1),
+    D("cd_ham","Hamstring Stretch","Long spine, hinge gently · 30 s","cool-down","cooldown",1),
+    D("cd_child","Child's Pose","Knees wide, arms long, breathe · 30 s","cool-down","cooldown"),
+    Object.assign(D("cd_chest","Chest Opener","Hands clasped behind, lift the chest · 30 s","cool-down","cooldown"),{defOff:true}),
+    Object.assign(D("cd_fig4","Figure-4 Glute Stretch","On your back, ankle over knee · 30 s","cool-down","cooldown",1),{defOff:true})
   ];
 
   // ---------- Storage ----------
@@ -314,6 +350,24 @@
   // user data: overrides {id:{on,freq,mode}} + custom [{...}]
   let user = store.get("kb45_lib_v2",{over:{},custom:[]});
   let settings = store.get("kb45_set_v2",{len:45,int:45,easy:false,voice:true,beep:true,seed:1});
+  if(!settings.program) settings.program = settings.easy ? "easy" : "regular";
+  if(!settings.cad) settings.cad="2-1-3"; if(!settings.sets) settings.sets=6; if(!settings.sgRounds) settings.sgRounds=10;
+  // Each workout keeps its own options
+  if(!settings.opts) settings.opts={ regular:{len:settings.len||45,int:settings.int||45}, easy:{len:settings.len||45,int:settings.int||45},
+                                     sg:{int:45,rounds:10}, cps:{cad:settings.cad,sets:settings.sets} };
+  function cpsNote(){ const [c,p,q]=(settings.cad||"2-1-3").split("-").map(Number), pl=(n,w,ws)=>n+" "+(n===1?w:ws);
+    return `Warm-up, then every minute on the minute: ${pl(c,"clean","cleans")}, ${pl(p,"press","presses")} and ${pl(q,"racked squat","racked squats")} on one side, then switch.`; }
+  function fixRounds(){   // C·P·S alternates sides, so rounds are even 2–60; swings + get-ups 2–12, even
+    const ev=(v,lo,hi,d)=>{ v=Math.round((+v||d)/2)*2; return Math.min(hi,Math.max(lo,v)); };
+    settings.sets=ev(settings.sets,2,60,6); settings.sgRounds=ev(settings.sgRounds,2,12,10); }
+  function storeOpts(){ const p=settings.program||"regular";
+    settings.opts[p] = p==="cps" ? {cad:settings.cad,sets:settings.sets} : p==="sg" ? {int:settings.int,rounds:settings.sgRounds} : {len:settings.len,int:settings.int}; }
+  function loadOpts(p){ const o=settings.opts[p]||{};
+    if(p==="cps"){ settings.cad=o.cad||"2-1-3"; settings.sets=o.sets||6; }
+    else if(p==="sg"){ settings.int=o.int||45; settings.sgRounds=o.rounds||10; }
+    else { settings.len=o.len||45; settings.int=o.int||45; }
+    fixRounds(); }
+  loadOpts(settings.program);
 
   function library(){
     return DEFAULTS.concat(user.custom).map(x=>{
@@ -326,7 +380,7 @@
       const b=cueBase(x.cue);
       const cue = show ? (b ? b+" · "+fmtDose(show) : fmtDose(show)) : x.cue;
       const edited = !!(def && (o.base || typeof o.dose==="string"));
-      return Object.assign({},x,{on:o.on!==false, freq:o.freq||x.freq, mode:o.mode||x.mode, cue, doseEdited:edited, dose:show, baseDose:base, defDose:def});
+      return Object.assign({},x,{on: o.on!=null ? o.on!==false : !x.defOff, freq:o.freq||x.freq, mode:o.mode||x.mode, cue, doseEdited:edited, dose:show, baseDose:base, defDose:def});
     });
   }
   // ---- Reps / time: defaults are written for a 45-second interval and scale to the one you pick ----
@@ -338,9 +392,9 @@
     return {n:+m[1], n2:m[2]!=null?+m[2]:null, unit, timed:/^s(ec(ond)?s?)?$/i.test(unit)};
   }
   function scaleDose(d,fixed){
-    const f = (settings.scale===false || fixed) ? 1 : settings.int/45;
+    const f = (settings.scale===false || fixed) ? 1 : IV()/45;
     if(d.timed){
-      const cap=Math.max(10, settings.int-10);
+      const cap=Math.max(10, IV()-10);
       const r=v=>Math.min(cap, Math.max(10, Math.round(v*f/5)*5));
       let n=r(d.n), n2=d.n2!=null?r(d.n2):null; if(n2!=null && n2<=n) n2=null;
       return {n, n2, unit:"s", timed:true};
@@ -369,22 +423,49 @@
   function todayKey(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
   function dailySeed(k){ let h=2166136261; for(const ch of k){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return (h%999983)+1; }
   function curSeed(){ return settings.seedDay===todayKey() ? settings.seed : dailySeed(todayKey()); }
+  // ---------- Programs ----------
+  // regular | easy | sg (swings + get-ups) | cps (clean · press · squat, EMOM). Cool-down is an optional extra.
+  let cooling=false, afterFinish=false;
+  const PROG=()=> settings.program || (settings.easy ? "easy" : "regular");
+  const IV=()=> cooling ? 40 : (PROG()==="cps" ? 60 : settings.int);
+  const PROG_NAMES={regular:"Regular", easy:"Easy day", sg:"Swings + Get-ups", cps:"Clean · Press · Squat"};
+  function progLabel(){ const p=PROG();
+    if(p==="sg") return "Swings + Get-ups · "+(settings.sgRounds||10)+" + "+(settings.sgRounds||10);
+    if(p==="cps") return "Clean · Press · Squat "+(settings.cad||"2-1-3")+" · "+(settings.sets||6)+" rounds";
+    return ratio()+" · "+(p==="easy"?"Easy day":"Full day"); }
   function rng(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s>>>=0; s^=s>>>17; s^=s<<5; s>>>=0; return s/4294967296; }; }
   function expand(x){ return x.sided ? [[x.name+" — Left",x.cue,x.tag,x.id],[x.name+" — Right",x.cue,x.tag,x.id]] : [[x.name,x.cue,x.tag,x.id]]; }
 
+  // About five minutes of warm-up from the warm-up moves you have switched on (repeats them if needed)
+  function warmPart(lib){ const warm=[]; lib.filter(x=>x.mode==="warmup").forEach(x=>warm.push(...expand(x)));
+    if(!warm.length) return []; const n=Math.max(1,Math.round(300/IV())), out=[]; for(let i=0;i<n;i++) out.push(warm[i%warm.length]); return out; }
+  function coolPart(lib){ const cd=[]; lib.filter(x=>x.mode==="cooldown").forEach(x=>cd.push(...expand(x))); return cd.slice(0,6); }
   function buildPlan(){
-    const slots=Math.max(1,Math.round(settings.len*60/settings.int));
     const lib=library().filter(x=>x.on);
-    const modeOk = settings.easy ? (m=>m==="both"||m==="easy") : (m=>m==="both"||m==="full");
-    const warm=[]; lib.filter(x=>x.mode==="warmup").forEach(x=>warm.push(...expand(x)));
-    const warmUse=warm.slice(0,Math.min(warm.length, Math.floor(slots/3)));
+    if(cooling){ const cd=coolPart(lib); return {plan:cd, empty:!cd.length, slots:cd.length}; }
+    const prog=PROG();
+    if(prog==="sg"){
+      const w=warmPart(lib), main=[];
+      const R=settings.sgRounds||10;
+      for(let i=1;i<=R;i++) main.push([`Swings (${i} of ${R})`,"Snap the hips, float the bell · 10 reps","swing","swing2"]);
+      for(let i=1;i<=R;i++){ const g=[`Turkish Get-Up — ${i%2?"Left":"Right"} (${i} of ${R})`,"Slow and controlled, eyes on the bell · 1 rep","TGU","tgu"]; g.dur=60; main.push(g); }   // get-ups always get a full minute
+      return {plan:w.concat(main), empty:false, slots:w.length+main.length};
+    }
+    if(prog==="cps"){
+      const [c,pr,sq]=(settings.cad||"2-1-3").split("-").map(Number), N=settings.sets||6, w=warmPart(lib), main=[];
+      for(let i=1;i<=N;i++) main.push([`Clean, Press, Squat — ${i%2?"Left":"Right"} (${i} of ${N})`,`Same side, all three · ${c} clean${c>1?"s":""}, ${pr} press${pr>1?"es":""}, ${sq} racked squat${sq>1?"s":""}`,"complex","cps"]);
+      return {plan:w.concat(main), empty:false, slots:w.length+N};
+    }
+    const slots=Math.max(1,Math.round(settings.len*60/IV()));
+    const modeOk = prog==="easy" ? (m=>m==="both"||m==="easy") : (m=>m==="both"||m==="full");
+    const warmUse=warmPart(lib).slice(0, Math.floor(slots/3));
     const need=slots-warmUse.length;
     const pool=[]; lib.filter(x=>modeOk(x.mode)).forEach(x=>{ for(let i=0;i<x.freq;i++) pool.push(expand(x)); });
     if(!pool.length) return {plan:warmUse, empty:true, slots};
     const poolSlots=pool.reduce((a,u)=>a+u.length,0);
     const reps=Math.max(1,Math.ceil(need/poolSlots));
     let units=[]; for(let r=0;r<reps;r++) units=units.concat(pool);
-    const R=rng(curSeed()*7919 + (settings.easy?1:0) + slots*31);
+    const R=rng(curSeed()*7919 + (prog==="easy"?1:0) + slots*31);
     let best=null,bestBad=1e9;
     for(let t=0;t<300;t++){
       const u=units.slice(); for(let i=u.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[u[i],u[j]]=[u[j],u[i]];}
@@ -406,7 +487,9 @@
   let plan=[], built=null, idx=-1, running=false, endAt=0, remainMs=0, timer=null, saidNext=false, lastBeep=null, dirty=false;
   let wakeLock=null, actx=null;
   const fmt=s=>{ s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
-  const total=()=>plan.length*settings.int;
+  const DUR=i=>(plan[i]&&plan[i].dur)||IV();                 // most sets use the interval; get-ups carry their own 60 s
+  const before=i=>{ let t=0; for(let k=0;k<i;k++) t+=DUR(k); return t; };
+  const total=()=>before(plan.length);
   const speak=n=>n.replace(" — "," ");
   // dose = the reps/time part of the cue (after the last "·"); short custom cues count too
   function dose(e){ const c=(e&&e[1])||""; const i=c.lastIndexOf("·"); if(i>=0) return c.slice(i+1).trim(); return (c.length<=24 && /\d/.test(c)) ? c.trim() : ""; }
@@ -427,9 +510,16 @@
     });
   }
   function renderHead(){
-    $("easyBtn").textContent=settings.easy?"Easy day: On":"Easy day: Off";
-    $("easyBtn").classList.toggle("on",settings.easy);
-    $("sub").textContent=settings.easy?"Easy day":"Full day";
+    const p=PROG();
+    $("sub").textContent = cooling ? "Cool-down" : p==="cps" ? "Clean · Press · Squat "+(settings.cad||"2-1-3") : PROG_NAMES[p];
+    $("progSel").value=p; $("cadSel").value=settings.cad||"2-1-3"; $("setsSel").value=String(settings.sets||6); $("sgSel").value=String(settings.sgRounds||10);
+    $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
+    const mix = p==="regular"||p==="easy";
+    $("lenWrap").hidden = $("scaleWrap").hidden = !mix;
+    $("intWrap").hidden = p==="cps"; $("intLbl").textContent = p==="sg" ? "Swing interval" : "Interval";
+    $("cadWrap").hidden = $("setsWrap").hidden = p!=="cps";
+    $("sgWrap").hidden = p!=="sg";
+    $("optNote").textContent = p==="sg" ? `Warm-up, then ${settings.sgRounds||10} sets of swings (1- or 2-handed) every ${settings.int||45}s, followed by ${settings.sgRounds||10} get-ups every 60s, alternating sides.` : p==="cps" ? cpsNote() : "";
   }
   // ---------- Something to read under the controls: one card per set ----------
   // Original lines (no attributed quotes). Sponsor slot stays off until there's a deal.
@@ -547,7 +637,7 @@
       $("slotLbl").className="slot ready"; $("slotLbl").innerHTML=`Ready<span class="rest">${plan.length} intervals · ${fmt(total())}</span>`;
       $("exName").textContent= built.empty ? "No exercises on" : "Press Start";
       $("exCue").textContent= built.empty ? "Switch some on in the exercise library below." : "Warm-up first, then the mix.";
-      $("clock").textContent=fmt(settings.int); $("clock").classList.remove("low");
+      $("clock").textContent=fmt(DUR(0)); $("clock").classList.remove("low");
       if(plan[0]) nextHTML("First up:",plan[0]); else $("nextLbl").textContent="";
       $("bar").style.width="0%";
       $("meta").textContent=`0:00 / ${fmt(total())}`;
@@ -573,18 +663,18 @@
     }
     const rem = running ? (endAt-performance.now())/1000 : remainMs/1000;
     const c=$("clock"); c.textContent=fmt(rem); c.classList.toggle("low", rem<=5);
-    $("bar").style.width=(100*(1-rem/settings.int)).toFixed(1)+"%";
-    $("meta").textContent=`${fmt(idx*settings.int+(settings.int-Math.max(rem,0)))} / ${fmt(total())}`;
+    $("bar").style.width=(100*(1-rem/DUR(idx))).toFixed(1)+"%";
+    $("meta").textContent=`${fmt(before(idx)+(DUR(idx)-Math.max(rem,0)))} / ${fmt(total())}`;
     if(!running) return;
     const whole=Math.ceil(rem);
     if(whole<=3 && whole>=1 && lastBeep!==whole){ lastBeep=whole; beep(660,0.09); }
-    if(!saidNext && rem<=10 && plan[idx+1]){ saidNext=true; say("Set "+(idx+2)+", "+announce(plan[idx+1])); }
+    if(!saidNext && rem<=10 && plan[idx+1]){ saidNext=true; say(((PROG()==="regular"||PROG()==="easy") && !cooling ? "Set "+(idx+2)+", " : "")+announce(plan[idx+1])); }
     if(rem<=0) go(idx+1,true);
   }
   function go(i,auto,quiet){
     if(i>=plan.length){ finish(); return; }
     idx=Math.max(0,i); saidNext=false; lastBeep=null;
-    remainMs=settings.int*1000; endAt=performance.now()+remainMs;
+    remainMs=DUR(idx)*1000; endAt=performance.now()+remainMs;
     renderNow(); renderList();
     if(running){ beep(auto?990:880,0.22); if(!quiet && settings.callStart!==false) say(announce(plan[idx])); }
     const cur=document.querySelector("li.cur"); if(cur&&auto&&settings.scroll) cur.scrollIntoView({block:"nearest",behavior:"smooth"});
@@ -600,7 +690,10 @@
     $("startBtn").textContent="Pause"; clearInterval(timer); timer=setInterval(tick,200); runUI();
   }
   function startPreroll(){
-    const first=plan[0], intro=`${settings.len} minute ${settings.easy?"easy":"full"} workout. ${plan.length} intervals, ${settings.int} seconds each.`;
+    const first=plan[0], P_=PROG(), setPre=(P_==="regular"||P_==="easy")?"Set 1, ":"";
+    const intro = P_==="sg" ? `Swings and get-ups. A short warm-up, then ${settings.sgRounds||10} sets of swings every ${IV()} seconds, followed by ${settings.sgRounds||10} get-ups, one every minute.`
+               : P_==="cps" ? `Clean, press, squat, every minute on the minute. A short warm-up, then ${settings.sets||6} rounds of ${(settings.cad||"2-1-3").split("-").join(", ")}.`
+               : `${settings.len} minute ${P_==="easy"?"easy":"full"} workout. ${plan.length} intervals, ${IV()} seconds each.`;
     voiceUnlocked=true;                     // the first phrase below is spoken inside this tap
     prerolling=true; running=true; lastBeep=null;
     endAt=performance.now()+15000;
@@ -610,9 +703,9 @@
     if(settings.voice && window.speechSynthesis){
       try{
         const ss=window.speechSynthesis; if(ss.speaking||ss.pending) ss.cancel(); ss.resume();
-        ss.speak(makeUtter("Set 1, "+announce(first)));
+        ss.speak(makeUtter(setPre+announce(first)));
         ss.speak(makeUtter(intro));
-        ss.speak(makeUtter("First up: Set 1, "+announce(first),{end:()=>{ if(prerolling){ const left=endAt-performance.now(); if(left>4500) endAt=performance.now()+4000; } }}));
+        ss.speak(makeUtter("First up: "+setPre+announce(first),{end:()=>{ if(prerolling){ const left=endAt-performance.now(); if(left>4500) endAt=performance.now()+4000; } }}));
       }catch(e){}
     } else endAt=performance.now()+10000;
     unlockAudio(); requestWake();
@@ -621,21 +714,41 @@
   function cancelPreroll(){ prerolling=false; running=false; try{ speechSynthesis.cancel(); }catch(e){} reset(); }
   function pause(){ stopPlaybackMode(); running=false; remainMs=Math.max(0,endAt-performance.now()); $("startBtn").textContent="Resume"; clearInterval(timer); releaseWake(); tick(); runUI(); }
   function reset(){
+    cooling=false; afterFinish=false;
     stopPlaybackMode(); prerolling=false; running=false; runUI(); clearInterval(timer); releaseWake(); idx=-1;
-    rebuild(); remainMs=settings.int*1000;
+    rebuild(); remainMs=DUR(0)*1000;
     $("startBtn").textContent="Start"; $("finish").style.display="none"; $("nowCard").style.display="";
-    renderNow(); renderList(); renderLib();
+    renderNow(); renderList(); renderLib(); renderHead();
+  }
+  function coolMinutes(){ const n=coolPart(library().filter(x=>x.on)).length; return Math.max(1,Math.round(n*40/60)); }
+  function startCooldown(){
+    afterFinish=false; cooling=true; rebuild();
+    if(!plan.length){ cooling=false; rebuild(); showQuote({label:"Cool-down", text:"Switch on some cool-down moves in the exercise library first."}); $("startBtn").textContent="Start"; return; }
+    $("finish").style.display="none"; $("nowCard").style.display="";
+    voiceUnlocked=true; unlockAudio(); requestWake(); running=true; idx=-1; renderHead();
+    say("Cool-down. Nice work.");
+    go(0,false,true); $("startBtn").textContent="Pause"; clearInterval(timer); timer=setInterval(tick,200); runUI(); renderList();
+  }
+  function finishCooldown(){
+    running=false; clearInterval(timer); releaseWake(); setTimeout(runUI,0); setTimeout(stopPlaybackMode,4000);
+    beep(990,0.15); say("Cool-down complete. See you tomorrow.");
+    cooling=false; idx=-1; rebuild(); renderHead(); renderList();
+    $("nowCard").style.display="none"; $("finish").style.display="block";
+    $("finishNote").textContent="Cool-down done. That's the whole session. "+$("finishNote").textContent.replace(/^Cool-down done\. That's the whole session\. /,"");
+    showQuote({label:"All done", text:"Workout, then cool-down. That's how it's done."});
+    $("startBtn").textContent="Start";
   }
   function finish(){
+    if(cooling){ finishCooldown(); return; }
     setTimeout(runUI,0);
     running=false; clearInterval(timer); releaseWake();
     beep(990,0.15); setTimeout(()=>beep(1320,0.3),180); say("Workout complete. Nice work."); setTimeout(stopPlaybackMode,4000);
     $("nowCard").style.display="none"; $("finish").style.display="block";
     markDone();
-    $("finishNote").textContent=`${plan.length} intervals · ${fmt(total())}. Day ${streak()} of your chain. Cool down with a walk and a few deep breaths.`;
+    $("finishNote").textContent=`${plan.length} intervals · ${fmt(total())}. Day ${streak()} of your chain.`;
     $("finishChain").textContent=chainRow(14);
     showQuote({label:"Done", text:"That's one more link in the chain. See you tomorrow."});
-    $("startBtn").textContent="Start"; idx=plan.length; renderList(); idx=-1;
+    afterFinish=true; $("startBtn").textContent=`Cool-down (${coolMinutes()} min)`; idx=plan.length; renderList(); idx=-1;
     $("meta").textContent=`${fmt(total())} / ${fmt(total())}`;
     if(dirty){ rebuild(); renderList(); }
   }
@@ -653,7 +766,7 @@
   }
 
   // ---------- Library UI ----------
-  const GROUPS=[["warmup","Warm-up (start of every session)"],["both","Full & easy days"],["full","Full days only"],["easy","Easy days only"]];
+  const GROUPS=[["warmup","Warm-up (about 5 minutes, start of every workout)"],["both","Full & easy days"],["full","Full days only"],["easy","Easy days only"],["cooldown","Cool-down (optional, after a workout)"]];
   function renderLib(){
     const lib=library(); const box=$("libGroups"); box.innerHTML="";
     $("libSum").textContent=`Exercise library · ${lib.filter(x=>x.on).length} of ${lib.length} on`;
@@ -676,12 +789,12 @@
           const m=document.createElement("button"); m.textContent="−"; m.setAttribute("aria-label","Fewer reps or less time for "+x.name);
           const v=document.createElement("span"); v.className="dv"+(x.doseEdited?" edited":""); v.textContent=fmtDose(x.dose);
           const p=document.createElement("button"); p.textContent="+"; p.setAttribute("aria-label","More reps or more time for "+x.name);
-          const f = (settings.scale===false || NOSCALE.has(x.id)) ? 1 : settings.int/45;
+          const f = (settings.scale===false || NOSCALE.has(x.id)) ? 1 : IV()/45;
           const bump=dir=>{
             const step = x.dose.timed ? 5 : 1;
             const shown = x.dose.n + dir*step;
             if(shown < (x.dose.timed?10:1)) return;
-            if(x.dose.timed && shown > Math.max(10,settings.int-10)) return;
+            if(x.dose.timed && shown > Math.max(10,IV()-10)) return;
             const span = x.dose.n2!=null ? (x.dose.n2 - x.dose.n) : null;
             const nb = shown / f, n2b = span!=null ? (shown+span)/f : null;
             setOver(x.id,{base:{n:+nb.toFixed(2), n2: n2b!=null ? +n2b.toFixed(2) : null}, dose:undefined});
@@ -707,7 +820,7 @@
           if(x.doseEdited){ const r=document.createElement("button"); r.className="rst"; r.textContent="↺"; r.title="Back to "+x.defDose; r.setAttribute("aria-label","Reset to "+x.defDose);
             r.onclick=()=>{ const o=Object.assign({},user.over[x.id]||{}); delete o.dose; user.over[x.id]=o; saveUser(); changed(); renderLib(); }; li.appendChild(r); }
         }
-        if(mode!=="warmup"){
+        if(mode!=="warmup" && mode!=="cooldown"){
           const st=document.createElement("span"); st.className="step";
           const m=document.createElement("button"); m.textContent="−"; m.setAttribute("aria-label","Less often");
           const v=document.createElement("span"); v.textContent="×"+x.freq;
@@ -785,13 +898,14 @@
   }
   function pickVoice(){
     if(!voices.length) loadVoices();
-    if(settings.voiceName){ const v=voices.find(v=>v.name===settings.voiceName); if(v) return v; }
+    const bad=new Set(settings.badVoices||[]), pool=voices.filter(v=>!bad.has(v.name));
+    if(settings.voiceName){ const v=pool.find(v=>v.name===settings.voiceName); if(v) return v; }
     // Prefer the higher-quality "Premium" / "Enhanced" downloads of the natural voices when the device has them
     const HQ=/premium|enhanced|natural|neural/i;
-    for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0 && HQ.test(v.name) && /en[-_](GB|AU|IE|NZ)/i.test(v.lang)); if(v) return v; }
-    for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0 && /en[-_](GB|AU|IE|NZ)/i.test(v.lang)); if(v) return v; }
-    for(const n of PREFER){ const v=voices.find(v=>v.name.indexOf(n)>=0); if(v) return v; }
-    return voices.find(v=>/en[-_]GB/i.test(v.lang)&&!MALE.test(v.name)) || voices.find(v=>/en[-_]AU/i.test(v.lang)&&!MALE.test(v.name)) || voices.find(v=>/en[-_](GB|AU)/i.test(v.lang)) || null;
+    for(const n of PREFER){ const v=pool.find(v=>v.name.indexOf(n)>=0 && HQ.test(v.name) && /en[-_](GB|AU|IE|NZ)/i.test(v.lang)); if(v) return v; }
+    for(const n of PREFER){ const v=pool.find(v=>v.name.indexOf(n)>=0 && /en[-_](GB|AU|IE|NZ)/i.test(v.lang)); if(v) return v; }
+    for(const n of PREFER){ const v=pool.find(v=>v.name.indexOf(n)>=0); if(v) return v; }
+    return pool.find(v=>/en[-_]GB/i.test(v.lang)&&!MALE.test(v.name)) || pool.find(v=>/en[-_]AU/i.test(v.lang)&&!MALE.test(v.name)) || pool.find(v=>/en[-_](GB|AU)/i.test(v.lang)) || null;
   }
   try{ if(window.speechSynthesis){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; } }catch(e){}
   if(!("speechSynthesis" in window)){ const n=document.createElement("div"); n.className="warnbox"; n.textContent="Voice isn't supported in this browser. Try opening the link in Safari or Chrome."; $("voiceSel").closest(".row").after(n); }
@@ -806,12 +920,27 @@
     if(hooks){ u.onstart=hooks.start; u.onerror=hooks.error; u.onend=hooks.end; }
     lastU=u; return u;
   }
+  // Some browsers (Safari on a Mac especially) list voices that aren't actually installed and then stay silent.
+  // If a voice hasn't started speaking within ~1.5 s, remember it as unusable and try the next one.
+  function speakWatched(t,hooks,tries){
+    const ss=window.speechSynthesis; let started=false;
+    const h=Object.assign({},hooks||{}); const userStart=h.start;
+    h.start=e=>{ started=true; userStart&&userStart(e); };
+    const u=makeUtter(t,h); ss.resume(); ss.speak(u);
+    const name=u.voice&&u.voice.name;
+    setTimeout(()=>{
+      if(started || !name || (tries||0)>=3) return;
+      settings.badVoices=[...new Set([...(settings.badVoices||[]),name])]; saveSettings();
+      try{ ss.cancel(); }catch(e){}
+      setTimeout(()=>speakWatched(t,hooks,(tries||0)+1),120);
+    },1500);
+  }
   function say(t,hooks,immediate){
     if(!window.speechSynthesis) return;
     if(!settings.voice && !immediate) return;
     try{
       const ss=window.speechSynthesis;
-      const go=()=>{ try{ ss.resume(); ss.speak(makeUtter(t,hooks)); }catch(e){ hooks&&hooks.error&&hooks.error({error:String(e)}); } };
+      const go=()=>{ try{ speakWatched(t,hooks,0); }catch(e){ hooks&&hooks.error&&hooks.error({error:String(e)}); } };
       if(immediate){ if(ss.speaking||ss.pending) ss.cancel(); go(); return; }
       // iOS drops an utterance spoken immediately after cancel(); only cancel if busy, then wait a beat
       if(ss.speaking||ss.pending){ ss.cancel(); setTimeout(go,120); } else go();
@@ -834,16 +963,17 @@
   }
   function trimHist(){ const h=hist(), keys=Object.keys(h).sort(); keys.slice(0,Math.max(0,keys.length-400)).forEach(k=>delete h[k]); }
   function doneSet(){ return new Set(Object.keys(hist())); }
-  function markDone(){ const now=new Date(); hist()[dkey(now)]={b:bandOf(now.getHours()), m:settings.len, h:now.getHours(), n:plan.length, e:settings.easy?1:0}; trimHist(); saveSettings(); }
+  function markDone(){ const now=new Date(); hist()[dkey(now)]={b:bandOf(now.getHours()), m:settings.len, h:now.getHours(), n:plan.length, e:PROG()==="easy"?1:0, t:progLabel()}; trimHist(); saveSettings(); }
   // What the share card and text describe: today's finished workout if there is one, otherwise a preview using the current time
   function shareInfo(){
     const now=new Date(), e=hist()[dkey(now)];
     const BAND_WORDS=["early morning","daytime","evening","late-night"];
     if(e){
       const when = e.h!=null ? partOfDay(e.h).toLowerCase().replace("-"," ") : BAND_WORDS[e.b||0];
-      return {date:now, when, ratio:(e.n||plan.length)+"/"+(e.m||settings.len), easy: e.e!=null ? !!e.e : !!settings.easy, actual:true};
+      const easy = e.e!=null ? !!e.e : PROG()==="easy";
+      return {date:now, when, ratio:(e.n||plan.length)+"/"+(e.m||settings.len), easy, label: e.t || ((e.n||plan.length)+"/"+(e.m||settings.len)+" · "+(easy?"Easy day":"Full day")), actual:true};
     }
-    return {date:now, when:partOfDay(now.getHours()).toLowerCase().replace("-"," "), ratio:ratio(), easy:!!settings.easy, actual:false};
+    return {date:now, when:partOfDay(now.getHours()).toLowerCase().replace("-"," "), ratio:ratio(), easy:PROG()==="easy", label:progLabel(), actual:false};
   }
   function streak(){
     const s=doneSet(); let d=new Date(); if(!s.has(dkey(d))) d=addDays(d,-1);   // today not done yet: count up to yesterday
@@ -860,7 +990,7 @@
   function shareText(note){
     const n=streak(), info=shareInfo();
     const date=info.date.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"});
-    const lines=[ (n ? `Kettlebell Catalyst · Day ${n} 🔥` : "Kettlebell Catalyst · starting my chain"), chainRow(14), `${info.ratio} · ${info.easy?"Easy day":"Full day"} · ${date}, ${info.when} workout` ];
+    const lines=[ (n ? `Kettlebell Catalyst · Day ${n} 🔥` : "Kettlebell Catalyst · starting my chain"), chainRow(14), `${info.label} · ${date}, ${info.when} workout` ];
     if(note) lines.push(`"${note}"`);
     lines.push(HOME+"#"+exportCode(false));
     return lines.join("\n");
@@ -915,6 +1045,7 @@
   });
 
   // ---------- About & feedback ----------
+  const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
   const FEEDBACK = ""; // TODO: Ken's email or form link
   function openAbout(firstRun){ openModal(firstRun ? "Welcome to Kettlebell Catalyst" : "About Kettlebell Catalyst",b=>{
     b.append(
@@ -922,10 +1053,17 @@
       el("p",{},"The premise in a nutshell: find one kettlebell (preferably one on the lighter side; the ",
         el("a",{href:"https://bellsofsteel.com/collections/adjustable-kettlebells",target:"_blank",rel:"noopener",textContent:"adjustable bells from Bells of Steel",style:"color:var(--accent2)"}),
         " are a great option), visit the kbcatalyst.ca site on your mobile device, select a workout length and exercise duration, and review the workout planned for you. It is as easy as pressing Start and listening to the prompts."),
-      P("There is no app to install, although the site does save your preferences on your device."),
-      P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email."),
-      P("All of your preferences are saved on your device."),
-      el("p",{className:"ok",textContent:"Version 1.7.4"}),
+      P("There is no app to install, although the site does save your preferences on your device and records your workout frequency. Site settings are device specific."),
+      P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email. Your exercise preferences and workout streak are saved on your device."),
+      H("Learning the moves"),
+      el("p",{},"New to kettlebells? Start with Greg Brookes's ",
+        el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"Beginner's Guide to Kettlebell Training",style:"color:var(--accent2)"}),
+        ". For how a particular exercise is done, see his ",
+        el("a",{href:"https://kettlebellsworkouts.com/kettlebell-exercises/",target:"_blank",rel:"noopener",textContent:"library of 52 kettlebell exercises",style:"color:var(--accent2)"}),"."),
+      el("p",{},"Prefer video? ",
+        el("a",{href:"https://www.youtube.com/c/MarkWildman",target:"_blank",rel:"noopener",textContent:"Mark Wildman's YouTube channel",style:"color:var(--accent2)"}),
+        " has detailed walkthroughs of the swing, get-up, clean and press, and more."),
+      el("p",{className:"ok",textContent:"Version 1.8"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -935,7 +1073,7 @@
     if(firstRun){
       const hl=el("p",{className:"ok"}); hl.append("New to kettlebells? Please read the ");
       const a=el("a",{href:"#",textContent:"health note",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); $("icoHealth").onclick(); };
-      hl.append(a," first."); b.append(hl);
+      hl.append(a," and Greg Brookes's ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first."); b.append(hl);
       const go=el("button",{className:"primary",textContent:"Get started"}); go.style.width="100%"; go.style.marginTop="14px"; go.onclick=closeModal;
       b.append(go);
     }
@@ -948,7 +1086,7 @@
   function b32dec(str){ const out=[]; let bits=0,val=0; for(const ch of str){ const i=B32.indexOf(ch); if(i<0) throw new Error("bad"); val=(val<<5)|i; bits+=5; if(bits>=8){ out.push((val>>>(bits-8))&255); bits-=8; } } return new Uint8Array(out); }
   function exportCode(withChain){
     const custom=user.custom.map(c=>({id:c.id,name:c.name,cue:c.cue,mode:c.mode,sided:c.sided,freq:c.freq}));
-    const payload={v:1,s:{len:settings.len,int:settings.int,easy:!!settings.easy,seed:curSeed(),scale:settings.scale!==false},o:user.over,c:custom};
+    const payload={v:1,s:{len:settings.len,int:settings.int,easy:PROG()==="easy",program:PROG(),cad:settings.cad,sets:settings.sets,sgRounds:settings.sgRounds,seed:curSeed(),scale:settings.scale!==false},o:user.over,c:custom};
     if(withChain){ payload.h=hist(); payload.g=!!settings.grace; }
     return "w"+b32enc(new TextEncoder().encode(JSON.stringify(payload)));
   }
@@ -960,7 +1098,8 @@
   }
   function applyCode(p){
     user={over:p.o||{},custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))}; saveUser();
-    Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false});
+    Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,program:p.s.program||(p.s.easy?"easy":"regular"),cad:p.s.cad||"2-1-3",sets:+p.s.sets||6,sgRounds:+p.s.sgRounds||10,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false}); fixRounds();
+    try{ storeOpts(); }catch(e){}
     if(p.h && typeof p.h==="object"){ const h=hist(); Object.keys(p.h).forEach(k=>{ const e=p.h[k]; if(/^\d{4}-\d\d-\d\d$/.test(k) && e && e.b>=0 && e.b<=3) h[k]={b:+e.b, m:+e.m||0}; }); trimHist(); settings.grace=!!p.g; }
     else if(Array.isArray(p.d)){ const h=hist(); p.d.forEach(k=>{ if(/^\d{4}-\d\d-\d\d$/.test(k) && !h[k]) h[k]={b:1,m:0}; }); settings.grace=!!p.g; }
     saveSettings(); try{ $("scaleChk").checked=settings.scale!==false; $("graceChk").checked=!!settings.grace; }catch(e){}
@@ -983,7 +1122,7 @@
     g.textAlign="center"; g.fillStyle="#c9cfdb"; g.font=F(500,40);
     g.fillText(info.date.toLocaleDateString("en-CA",{weekday:"long",month:"long",day:"numeric"})+" · "+info.when,540,150);
     // 2: what · Day N (boldest)
-    const a=(info.easy?"EASY DAY":"FULL DAY")+" · "+info.ratio+" · ", b= n ? "Day "+n+" 🔥" : "Day 1 next";
+    const a=info.label.toUpperCase()+" · ", b= n ? "Day "+n+" 🔥" : "Day 1 next";
     g.font=F(700,52); const wa=g.measureText(a).width; g.font=F(900,84); const wb=g.measureText(b).width;
     const sc=Math.min(1, 900/(wa+wb)), x=540-(wa+wb)*sc/2;
     g.save(); g.translate(x,262); g.scale(sc,sc); g.textAlign="left";
@@ -1113,8 +1252,9 @@
     hist();                                   // make sure the real chain is set up before copying
     guest={user, settings};
     user={over:JSON.parse(JSON.stringify(p.o||{})), custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))};
-    settings=Object.assign({}, guest.settings, {len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false});
+    settings=Object.assign({}, guest.settings, {len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,program:p.s.program||(p.s.easy?"easy":"regular"),cad:p.s.cad||"2-1-3",sets:+p.s.sets||6,sgRounds:+p.s.sgRounds||10,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false}); fixRounds();
     settings.hist=guest.settings.hist;        // finishing still counts toward your own chain
+    settings.opts=JSON.parse(JSON.stringify(guest.settings.opts||{}));   // a guest's option changes never touch your own
     $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int); $("scaleChk").checked=settings.scale!==false;
     $("guestBar").hidden=false; reset();
   }
@@ -1128,12 +1268,13 @@
     const h=location.hash.replace(/^#/,""); if(!/^w[a-z2-7]+$/.test(h)) return;
     const p=parseCode(h); if(!p) return;
     const clear=()=>{ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){ try{ location.hash=""; }catch(_){} } };
-    const n=Math.round(p.s.len*60/p.s.int);
+    const n=Math.round(p.s.len*60/p.s.int), pg=p.s.program||(p.s.easy?"easy":"regular");
+    const what = pg==="sg" ? `Swings + Get-ups workout: ${p.s.sgRounds||10} sets of swings and ${p.s.sgRounds||10} get-ups` : pg==="cps" ? `Clean · Press · Squat workout: ${p.s.sets||6} rounds of ${p.s.cad||"2-1-3"}, every minute` : null;
     if(p.h){ clear(); return; }               // setup codes (with a chain) are loaded from the share menu, not links
     if(!isReturningUser()){                   // new here: their first workout is the one they were sent
       applyCode(p); clear();
       openModal("Welcome to Kettlebell Catalyst",b=>{
-        b.append(P(`You've been sent a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each. It's loaded and ready.`),
+        b.append(P(what ? `You've been sent a ${what}. It's loaded and ready.` : `You've been sent a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each. It's loaded and ready.`),
                  P("Press Start when your bell is ready. You can make it your own later in the exercise library."));
         const ok=el("button",{className:"small primary",textContent:"Let's go"}); ok.onclick=closeModal;
         b.append(el("div",{className:"btnrow"},ok));
@@ -1141,7 +1282,7 @@
       return;
     }
     openModal("Shared workout",b=>{
-      b.append(P(`Someone shared a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each.`));
+      b.append(P(what ? `Someone shared a ${what}.` : `Someone shared a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each.`));
       const once=el("button",{className:"small primary",textContent:"Do this workout"}); once.onclick=()=>{ startGuest(p); clear(); closeModal(); };
       const adopt=el("button",{className:"small",textContent:"Make it my setup"}); adopt.onclick=()=>{ endGuest(true); applyCode(p); clear(); closeModal(); };
       const no=el("button",{className:"small",textContent:"Not now"}); no.onclick=()=>{ clear(); closeModal(); };
@@ -1151,16 +1292,19 @@
   window.addEventListener("hashchange",checkHash);
 
   // ---------- Controls ----------
-  $("startBtn").onclick=()=> prerolling?cancelPreroll():(running?pause():start());
+  $("startBtn").onclick=()=> prerolling?cancelPreroll():(running?pause():(afterFinish?startCooldown():start()));
   $("skipBtn").onclick=()=>{ unlockAudio(); if(prerolling){ prerolling=false; try{ speechSynthesis.cancel(); }catch(e){} go(0,false); return; } if(idx<0){ if(!running) start(); return; } go(idx+1,false); };
   $("backBtn").onclick=()=>{ if(idx>0) go(idx-1,false); };
   $("resetBtn").onclick=reset;
   $("mixBtn").onclick=()=>{ settings.seed=1+Math.floor(Math.random()*999983); settings.seedDay=todayKey(); saveSettings(); reset(); };
-  $("easyBtn").onclick=()=>{ settings.easy=!settings.easy; saveSettings(); if(inProgress()){ dirty=true; $("pending").hidden=false; renderHead(); } else reset(); };
+  $("progSel").onchange=e=>{ storeOpts(); settings.program=e.target.value; settings.easy=(settings.program==="easy"); loadOpts(settings.program); saveSettings(); changed(); renderHead(); };
+  $("cadSel").onchange=e=>{ settings.cad=e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("setsSel").onchange=e=>{ settings.sets=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("sgSel").onchange=e=>{ settings.sgRounds=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
   $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
   $("voiceChk").checked=settings.voice; $("beepChk").checked=settings.beep; $("scrollChk").checked=!!settings.scroll;
-  $("lenSel").onchange=e=>{ settings.len=+e.target.value; saveSettings(); changed(); };
-  $("intSel").onchange=e=>{ settings.int=+e.target.value; saveSettings(); changed(); };
+  $("lenSel").onchange=e=>{ settings.len=+e.target.value; storeOpts(); saveSettings(); changed(); };
+  $("intSel").onchange=e=>{ settings.int=+e.target.value; storeOpts(); saveSettings(); changed(); };
   $("voiceChk").onchange=e=>{ settings.voice=e.target.checked; saveSettings(); };
   $("beepChk").onchange=e=>{ settings.beep=e.target.checked; saveSettings(); };
   $("scrollChk").onchange=e=>{ settings.scroll=e.target.checked; saveSettings(); };
@@ -1170,10 +1314,11 @@
   $("graceChk").onchange=e=>{ settings.grace=e.target.checked; saveSettings(); };
   $("scaleChk").onchange=e=>{ settings.scale=e.target.checked; saveSettings(); changed(); renderLib(); };
   $("callChk").onchange=e=>{ settings.callStart=e.target.checked; saveSettings(); };
-  $("voiceSel").onchange=e=>{ settings.voiceName=e.target.value; saveSettings(); };
+  $("voiceSel").onchange=e=>{ settings.voiceName=e.target.value; settings.badVoices=(settings.badVoices||[]).filter(n=>n!==e.target.value); saveSettings(); };
   $("testVoice").onclick=()=>{
     const diag=$("voiceDiag"); diag.hidden=false;
     if(!window.speechSynthesis){ diag.textContent="Voice: this browser has no speech support. Try Safari or Chrome."; return; }
+    settings.badVoices=[]; saveSettings();   // give every voice a fresh chance when testing
     voiceUnlocked=true;           // speak the real phrase as the first utterance, inside the tap
     loadVoices();
     let started=false;
