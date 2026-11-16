@@ -1230,7 +1230,7 @@
   // The card already shows the day, chain, workout and time, so the text is just the note (if any) and the link
   function shareText(note,withWorkout){
     const lines=[];
-    if(note) lines.push(`"${note}"`);
+    if(note) lines.push(note);
     lines.push(withWorkout ? HOME+"#"+exportCode(false) : HOME);   // the site, or a link that opens this exact workout
     return lines.join("\n");
   }
@@ -1304,7 +1304,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.9.10";
+  const APP_VERSION = "1.9.19";
   try{ $("verTag").textContent="v"+APP_VERSION; }catch(e){}
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
@@ -1330,9 +1330,9 @@
   function openAbout(firstRun){ openModal(firstRun ? "Welcome to Kettlebell Catalyst" : "About Kettlebell Catalyst",b=>{
     b.append(
       P("Kettlebell Catalyst intends to lower workout activation energy by providing simple programs that meet the time requirements of busy people, with as little equipment and setup as possible."),
-      el("p",{},"The premise in a nutshell: find one kettlebell (preferably one on the lighter side; the ",
-        el("a",{href:"https://bellsofsteel.com/collections/adjustable-kettlebells",target:"_blank",rel:"noopener",textContent:"adjustable bells from Bells of Steel",style:"color:var(--accent2)"}),
-        " are a great option), visit the kbcatalyst.ca site on your mobile device, select a workout length and exercise duration, and review the workout planned for you. It is as easy as pressing Start and listening to the prompts."),
+      el("p",{},"The premise in a nutshell: find one kettlebell (preferably one on the lighter side; see ",
+        (()=>{ const a=el("a",{href:"#",textContent:"how to choose your bell",style:"color:var(--accent2)"}); a.onclick=e=>{ e.preventDefault(); openBellGuide(); }; return a; })(),
+        "), visit the kbcatalyst.ca site on your mobile device, select a workout length and exercise duration, and review the workout planned for you. It is as easy as pressing Start and listening to the prompts."),
       P("There is no app to install, although the site does save your preferences on your device and records your workout frequency. Site settings are device specific."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email. Your exercise preferences and workout streak are saved on your device."),
       P("Links for learning the moves, feedback and support are under the speech bubble."),
@@ -1341,35 +1341,66 @@
     if(firstRun){
       const hl=el("p",{className:"ok"}); hl.append("New to kettlebells? Please read the ");
       const a=el("a",{href:"#",textContent:"health note",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); $("icoHealth").onclick(); };
-      hl.append(a," and Greg Brookes' ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first."); b.append(hl);
+      hl.append(a," and Greg Brookes' ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first. Need a bell? Here's ",(()=>{ const a=el("a",{href:"#",textContent:"how to choose one",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); openBellGuide(); }; return a; })(),"."); b.append(hl);
       const go=el("button",{className:"primary",textContent:"Get started"}); go.style.width="100%"; go.style.marginTop="14px"; go.onclick=closeModal;
       b.append(go);
     }
   }); }
   $("icoAbout").onclick=()=>openAbout(false);
+  function openBellGuide(){ openModal("Choosing your bell",b=>{
+    const L=(arr)=>{ const ul=el("ul"); ul.style.margin="2px 0 8px"; ul.style.paddingLeft="20px"; arr.forEach(t=>{ const li=el("li"); li.style.display="list-item"; li.style.border="none"; li.style.padding="1px 0"; li.style.color="#c9cfdb"; li.innerHTML=t; ul.append(li); }); return ul; };
+    b.append(
+      el("p",{innerHTML:"<b>Start lighter than you think.</b> One bell does every move here. The app grows volume and density (more reps, rounds and minutes, less rest), so a light bell keeps working for a long time."}),
+      el("p",{innerHTML:"<b>Try before you buy</b> at a sporting goods store with a range of weights:"}),
+      L(["<b>Press:</b> 5 strict reps overhead, each arm","<b>Halo:</b> 3 slow circles each way, under control","<b>Goblet squat:</b> easy to hold at your chest"]),
+      el("p",{innerHTML:"<b>Between two weights? Go lighter.</b> Typical start: many women 6–10 kg (13–22 lb), many men 10–16 kg (22–35 lb); very new or returning from injury, the low end."}),
+      el("p",{innerHTML:"<b>Look for</b> a one-piece bell with a smooth, two-hand handle and a flat bottom. Competition bells are the same size at every weight; traditional bells grow, and their handles change."}),
+      el("p",{innerHTML:"<b>Know your weight?</b> Facebook Marketplace is great for gently used bells. Avoid rough paint, seamed handles, wobbly two-piece bells, and cheap adjustables with odd shapes or rattling plates."}),
+      el("p",{},el("b",{textContent:"Adjustable bells are the perfect complement: "}),"add weight a little at a time. Roughly, most women suit the ",
+        el("a",{href:"https://bellsofsteel.com/collections/adjustable-kettlebells",target:"_blank",rel:"noopener",textContent:"Bells of Steel adjustable",style:"color:var(--accent2)"}),
+        " 6–12 kg, most men the 12–20.5 kg (9–20.5 kg with the optional plastic bottom).")
+    );
+  }); }
+  function openGear(){ openModal("What else you need",b=>{
+    b.append(P("Not much. One bell, and:"));
+    const ul=el("ul"); ul.style.paddingLeft="20px"; ul.style.margin="4px 0 8px";
+    ["<b>A mat, rug or carpet</b> for get-ups, floor presses and core work.",
+     "<b>Clear space:</b> room to swing in every direction, and a ceiling high enough for presses and snatches. Outside is great in good weather.",
+     "<b>Flat shoes or bare feet.</b> Cushioned running shoes make swings and squats wobbly.",
+     "<b>Chalk (optional)</b> for grip on sweaty days. A towel works too.",
+     "<b>Headphones or a speaker</b> so you hear the voice cues over music or noise.",
+     "<b>A spot for your phone</b>, propped up where you can see the clock and away from where the bell swings."
+    ].forEach(t=>{ const li=el("li"); li.style.display="list-item"; li.style.border="none"; li.style.padding="4px 0"; li.style.color="#c9cfdb"; li.innerHTML=t; ul.append(li); });
+    b.append(ul, P("That's it. Press Start."));
+  }); }
   function openHelp(){ openModal("Help & feedback",b=>{
     b.append(
+      H("Getting started"),
+      (()=>{ const p=el("p",{}); p.append("New to kettlebells, or shopping for one? ");
+        const a=el("a",{href:"#",textContent:"How to choose your bell →",style:"color:var(--accent2)"}); a.onclick=e=>{ e.preventDefault(); openBellGuide(); };
+        const g=el("a",{href:"#",textContent:"What else do I need to get started? →",style:"color:var(--accent2)"}); g.onclick=e=>{ e.preventDefault(); openGear(); };
+        p.append(a, el("br"), g); return p; })(),
       H("Learning the moves"),
       el("p",{},"New to kettlebells? Start with Greg Brookes' ",
         el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"Beginner's Guide to Kettlebell Training",style:"color:var(--accent2)"}),
-        ". For how a particular exercise is done, see his ",
-        el("a",{href:"https://kettlebellsworkouts.com/kettlebell-exercises/",target:"_blank",rel:"noopener",textContent:"library of 52 kettlebell exercises",style:"color:var(--accent2)"}),"."),
+        ". For a particular exercise, see his ",
+        el("a",{href:"https://kettlebellsworkouts.com/kettlebell-exercises/",target:"_blank",rel:"noopener",textContent:"52-exercise library",style:"color:var(--accent2)"}),"."),
       el("p",{},"Prefer video? ",
         el("a",{href:"https://www.youtube.com/c/MarkWildman",target:"_blank",rel:"noopener",textContent:"Mark Wildman's YouTube channel",style:"color:var(--accent2)"}),
-        " has detailed walkthroughs of the swing, get-up, clean and press, and more.")
+        " walks through the key lifts.")
     );
     b.append(H("Questions & feedback"));
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
       b.append(isLink ? el("p",{},el("a",{href:FEEDBACK,textContent:"Send feedback",target:"_blank",rel:"noopener",style:"color:var(--accent2)"}))
                       : el("p",{},"Questions, ideas or bugs? Email ",
                           el("a",{href:feedbackMailto(),textContent:FEEDBACK,style:"color:var(--accent2)"}),
-                          ". I read everything. Your device details are filled in for you, so just add your comments.")); }
+                          ". Your device details are filled in for you.")); }
     else b.append(P("A feedback link is coming soon. In the meantime, tell the person who shared this with you."));
     b.append(
       H("Support"),
-      el("p",{},"Kettlebell Catalyst is free, with no accounts or sign-ups. If it helps you keep your chain going, you can ",
+      el("p",{},"It's free, with no accounts. If it helps you keep your chain going, you can ",
         (()=>{ const a=el("a",{href:"https://ko-fi.com/kbcatalyst",target:"_blank",rel:"noopener",textContent:"buy me a coffee on Ko-fi",style:"color:var(--accent2)"}); a.onclick=()=>track("kofi",{from:"help"}); return a; })(),
-        ". It helps keep it free.")
+        ".")
     );
   }); }
   $("icoHelp").onclick=openHelp;
@@ -1435,7 +1466,7 @@
     }
     // 4: note, brand, tagline
     g.textAlign="center";
-    if(cardNote){ g.fillStyle="#f2d21b"; g.font=F(600,42); let t="“"+cardNote+"”"; while(g.measureText(t).width>920 && t.length>5) t=t.slice(0,-2)+"…”"; g.fillText(t,540,826); }
+    if(cardNote){ g.fillStyle="#f2d21b"; g.font=F(600,42); let t=cardNote; while(g.measureText(t).width>920 && t.length>3) t=t.slice(0,-2)+"…"; g.fillText(t,540,826); }
     // sign-off: app icon on the left, address and tagline left-aligned beside it, the pair centred
     { const icon=120, gap=26; g.font=F(800,50); const w1=g.measureText("kbcatalyst.ca").width; g.font=F(600,36); const w2=g.measureText(TAGLINE).width;
       const total=icon+gap+Math.max(w1,w2), x0=540-total/2, top=876;
@@ -1580,7 +1611,7 @@
                  P("Press Start when your bell is ready. You can make it your own later in the exercise library."));
         { const hl=el("p",{className:"ok"}); hl.append("New to kettlebells? Please read the ");
           const a=el("a",{href:"#",textContent:"health note",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); $("icoHealth").onclick(); };
-          hl.append(a," and Greg Brookes' ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first. The ⓘ icon on the right tells you more about the app."); b.append(hl); }
+          hl.append(a," and Greg Brookes' ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first. Need a bell? Here's ",(()=>{ const a=el("a",{href:"#",textContent:"how to choose one",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); openBellGuide(); }; return a; })(),". The ⓘ icon on the right tells you more about the app."); b.append(hl); }
         const ok=el("button",{className:"small primary",textContent:"Let's go"}); ok.onclick=closeModal;
         b.append(el("div",{className:"btnrow"},ok));
       });
