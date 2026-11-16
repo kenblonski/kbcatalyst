@@ -1044,10 +1044,9 @@
   }
   function chainRow(n){ const h=hist(); let out=""; for(let i=n-1;i>=0;i--){ const e=h[dkey(addDays(new Date(),-i))]; out+= e ? BAND_EMOJI[e.b||0] : "⬜"; } return out; }
   function partOfDay(h){ return h<7?"Early-morning":h<12?"Morning":h<17?"Afternoon":h<21?"Evening":"Late-night"; }   // lines up with the 4 chain bands
+  // The card already shows the day, chain, workout and time, so the text is just the note (if any) and the link
   function shareText(note,withWorkout){
-    const n=streak(), info=shareInfo();
-    const date=info.date.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"});
-    const lines=[ (n ? `Kettlebell Catalyst · Day ${n} 🔥` : "Kettlebell Catalyst · starting my chain"), chainRow(14), `${info.label} · ${date}, ${info.when} workout` ];
+    const lines=[];
     if(note) lines.push(`"${note}"`);
     lines.push(withWorkout ? HOME+"#"+exportCode(false) : HOME);   // the site, or a link that opens this exact workout
     return lines.join("\n");
@@ -1112,7 +1111,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.8.8";
+  const APP_VERSION = "1.8.9";
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
   function deviceInfo(){
