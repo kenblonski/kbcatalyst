@@ -75,7 +75,8 @@
   .houserow b{display:block;font-size:18px;color:var(--text)}
   .houserow span{display:block;font-size:15px;color:var(--accent);font-weight:700;margin-top:2px}
   .quote a{color:var(--accent)}
-  .wsel select{font-size:16px;font-weight:700;color:var(--accent)}
+  .wsel{min-width:0;flex:1 1 auto;display:flex;align-items:center;gap:8px}
+  .wsel select{font-size:16px;font-weight:700;color:var(--accent);min-width:0;flex:0 1 auto;max-width:100%;text-overflow:ellipsis}
   .wbtns{display:inline-flex;gap:6px;margin-left:auto}
   .icob{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:12px;color:var(--text)}
   .icob svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -216,13 +217,25 @@
   </div>
   <div class="quote" id="quoteBox" aria-live="polite"><div class="ql" id="qLabel">Ready when you are</div><div class="qt" id="qText">Pick up your bell. Press Start when you're ready.</div></div>
 
-  <div class="row">
+  <div class="row" style="flex-wrap:nowrap">
     <label class="wsel">Workout
       <select id="progSel">
-        <option value="regular">Regular</option>
-        <option value="easy">Easy day</option>
-        <option value="sg">Swings + Get-ups</option>
-        <option value="cps">Clean · Press · Squat</option>
+        <optgroup label="Daily mix">
+          <option value="regular">Regular</option>
+          <option value="easy">Easy day</option>
+        </optgroup>
+        <optgroup label="Clean &amp; press">
+          <option value="lad">Clean &amp; Press Ladders</option>
+          <option value="cps">Clean · Press · Squat</option>
+        </optgroup>
+        <optgroup label="Swings">
+          <option value="sg">Swings + Get-ups</option>
+          <option value="ss">Swings + Strength</option>
+          <option value="tab">Swings - Tabata</option>
+        </optgroup>
+        <optgroup label="Advanced">
+          <option value="sn">Snatch Practice (advanced)</option>
+        </optgroup>
       </select>
     </label>
     <span class="wbtns"><button class="icob" id="mixBtn" title="New mix" aria-label="New mix: shuffle today's exercises"><svg viewBox="0 0 24 24"><path d="M3 7h3.5c2 0 3 1 4.2 2.8l2.6 4.4C14.5 16 15.5 17 17.5 17H21"/><path d="M3 17h3.5c1.3 0 2.2-.5 3-1.4"/><path d="M14.5 8.4c.8-.9 1.7-1.4 3-1.4H21"/><path d="m18.5 4.5 2.5 2.5-2.5 2.5"/><path d="m18.5 14.5 2.5 2.5-2.5 2.5"/></svg></button><button class="icob" id="resetBtn" title="Reset" aria-label="Reset: start this workout over"><svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4v4.5H9"/></svg></button></span>
@@ -244,6 +257,28 @@
       <select id="setsSel">
         <option value="2">2</option><option value="4">4</option><option value="6" selected>6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option><option value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20">20</option><option value="22">22</option><option value="24">24</option><option value="26">26</option><option value="28">28</option><option value="30">30</option><option value="32">32</option><option value="34">34</option><option value="36">36</option><option value="38">38</option><option value="40">40</option><option value="42">42</option><option value="44">44</option><option value="46">46</option><option value="48">48</option><option value="50">50</option><option value="52">52</option><option value="54">54</option><option value="56">56</option><option value="58">58</option><option value="60">60</option>
       </select>
+    </label>
+    <label id="tabWrap" hidden>Length
+      <select id="tabSel"><option value="1">1 min</option><option value="2">2 min</option><option value="3">3 min</option><option value="4" selected>4 min</option><option value="5">5 min</option><option value="6">6 min</option><option value="7">7 min</option><option value="8">8 min</option><option value="9">9 min</option><option value="10">10 min</option></select>
+    </label>
+    <label id="snRepsWrap" hidden>Snatches per set
+      <select id="snRepsSel"><option value="3">3</option><option value="5" selected>5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option></select>
+    </label>
+    <label id="snSetsWrap" hidden>Sets
+      <select id="snSetsSel"><option value="10">10</option><option value="12">12</option><option value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20" selected>20</option><option value="22">22</option><option value="24">24</option><option value="26">26</option><option value="28">28</option><option value="30">30</option><option value="32">32</option><option value="34">34</option><option value="36">36</option><option value="38">38</option><option value="40">40</option></select>
+    </label>
+    <label id="ladTopWrap" hidden>Top rung
+      <select id="ladTopSel"><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+    </label>
+    <label id="ladNWrap" hidden>Ladders
+      <select id="ladNSel"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select>
+    </label>
+    <label id="ladMultiWrap" hidden><input type="checkbox" id="ladMultiChk"> Clean before every press</label>
+    <label id="ssWrap" hidden>Rounds
+      <select id="ssSel"><option value="2">2</option><option value="4">4</option><option value="6">6</option><option value="8">8</option><option value="10" selected>10</option><option value="12">12</option><option value="14">14</option><option value="16">16</option><option value="18">18</option><option value="20">20</option></select>
+    </label>
+    <label id="ssMoveWrap" hidden>Strength move
+      <select id="ssMoveSel"></select>
     </label>
     <label id="sgWrap" hidden>Rounds
       <select id="sgSel">
@@ -275,7 +310,7 @@
   <div class="note" id="voiceDiag" hidden></div>
   <div class="warnbox" id="pending" hidden>Changes will apply when you reset or finish this workout.</div>
 
-  <div class="note">Easy, steady pace: do the suggested reps, then rest for the rest of the interval. Left/right moves always come in pairs. Your mix, settings and library are saved on this device. <b>Easy day</b> builds the session from exercises marked for easy days.<br><br>Consider increasing the number of reps in each set over time as you get more comfortable with each exercise. If and when you increase weight, consider reducing the number of reps again to make the transition as easy as possible.<br><br>Use good form, don't do any exercises you are uncomfortable or unfamiliar with, and use your best judgement to work out safely.</div>
+<div class="note" id="guideNote"></div>
 
   <h2>Today's order</h2>
   <ol id="list"></ol>
@@ -394,21 +429,33 @@
   const streakRange=n=> n<=1 ? "1" : n<7 ? "2-6" : n<30 ? "7-29" : n<100 ? "30-99" : "100+";
   let settings = store.get("kb45_set_v2",{len:45,int:45,easy:false,voice:true,beep:true,seed:1});
   if(!settings.program) settings.program = settings.easy ? "easy" : "regular";
-  if(!settings.cad) settings.cad="2-1-3"; if(!settings.sets) settings.sets=6; if(!settings.sgRounds) settings.sgRounds=10;
+  if(!settings.cad) settings.cad="2-1-3"; if(!settings.sets) settings.sets=6; if(!settings.sgRounds) settings.sgRounds=10; if(!settings.ssRounds) settings.ssRounds=10; if(!settings.ssMove) settings.ssMove="gsq"; if(!settings.tabRounds) settings.tabRounds=8; if(!settings.snReps) settings.snReps=5; if(!settings.snSets) settings.snSets=20; if(!settings.ladTop) settings.ladTop=3; if(!settings.ladN) settings.ladN=3;
   // Each workout keeps its own options
   if(!settings.opts) settings.opts={ regular:{len:settings.len||45,int:settings.int||45}, easy:{len:settings.len||45,int:settings.int||45},
                                      sg:{int:45,rounds:10}, cps:{cad:settings.cad,sets:settings.sets} };
   function cpsNote(){ const [c,p,q]=(settings.cad||"2-1-3").split("-").map(Number), pl=(n,w,ws)=>n+" "+(n===1?w:ws);
     const every=(settings.int||60)===60 ? "every minute on the minute" : `every ${settings.int}s`;
     return `Warm-up, then ${every}: ${pl(c,"clean","cleans")}, ${pl(p,"press","presses")} and ${pl(q,"racked squat","racked squats")} on one side, then switch.`; }
+  const ladRungs=()=>Array.from({length:settings.ladTop||3},(_,i)=>i+1).join("-");
+  function tabNote(){ const r=settings.tabRounds||8, m=r*30/60;
+    return `Warm-up (five moves, 45 seconds each), then ${m} minute${m>1?"s":""} of Tabata: ${r} rounds of 20 seconds of all-out swings, 10 seconds of rest. The voice says "Rest" when it's time to stop.`; }
+  function snNote(){ const n=settings.snReps||5, k=settings.snSets||20;
+    return `Warm-up, then ${k} sets of ${n} snatches every ${settings.int||30}s, switching hands each set (${n*k} snatches). For lifters who already snatch with good technique.`; }
+  function ladNote(){ return `Warm-up, then ${settings.ladN||3} ladders of ${ladRungs()}: each rung is one side then the other, every ${settings.int||45}s. ${settings.ladMulti?"Clean before every press.":"Clean once, then press the reps (re-clean if you need to)."}`; }
+  function ssNote(){ const all=library(), m=ssMove(all), sw=all.find(x=>x.id==="swing2"), reps=c=>c.split("·").pop().trim();
+    return `Warm-up, then ${settings.ssRounds||10} rounds of swings (${sw?reps(sw.cue):"10 reps"}) and ${m.name.toLowerCase()} (${reps(m.cue)})${m.sided?", alternating sides":""}, every ${settings.int||45}s.`; }
   function fixRounds(){   // C·P·S alternates sides, so rounds are even 2–60; swings + get-ups 2–12, even
     const ev=(v,lo,hi,d)=>{ v=Math.round((+v||d)/2)*2; return Math.min(hi,Math.max(lo,v)); };
-    settings.sets=ev(settings.sets,2,60,6); settings.sgRounds=ev(settings.sgRounds,2,12,10); }
+    settings.sets=ev(settings.sets,2,60,6); settings.sgRounds=ev(settings.sgRounds,2,12,10); settings.ssRounds=ev(settings.ssRounds,2,20,10); settings.snSets=ev(settings.snSets,10,40,20); }
   function storeOpts(){ const p=settings.program||"regular";
-    settings.opts[p] = p==="cps" ? {cad:settings.cad,sets:settings.sets,int:settings.int} : p==="sg" ? {int:settings.int,rounds:settings.sgRounds} : {len:settings.len,int:settings.int}; }
+    settings.opts[p] = p==="cps" ? {cad:settings.cad,sets:settings.sets,int:settings.int} : p==="sg" ? {int:settings.int,rounds:settings.sgRounds} : p==="ss" ? {int:settings.int,rounds:settings.ssRounds,move:settings.ssMove} : p==="lad" ? {int:settings.int,top:settings.ladTop,n:settings.ladN,multi:!!settings.ladMulti} : p==="sn" ? {int:settings.int,reps:settings.snReps,sets:settings.snSets} : p==="tab" ? {int:settings.int,rounds:settings.tabRounds} : {len:settings.len,int:settings.int}; }
   function loadOpts(p){ const o=settings.opts[p]||{};
     if(p==="cps"){ settings.cad=o.cad||"2-1-3"; settings.sets=o.sets||6; settings.int=o.int||60; }
     else if(p==="sg"){ settings.int=o.int||45; settings.sgRounds=o.rounds||10; }
+    else if(p==="tab"){ settings.int=o.int||30; settings.tabRounds=o.rounds||8; }
+    else if(p==="sn"){ settings.int=o.int||30; settings.snReps=o.reps||5; settings.snSets=o.sets||20; }
+    else if(p==="lad"){ settings.int=o.int||45; settings.ladTop=o.top||3; settings.ladN=o.n||3; settings.ladMulti=!!o.multi; }
+    else if(p==="ss"){ settings.int=o.int||45; settings.ssRounds=o.rounds||10; settings.ssMove=o.move||"gsq"; }
     else { settings.len=o.len||45; settings.int=o.int||45; }
     fixRounds(); }
   loadOpts(settings.program);
@@ -473,9 +520,20 @@
   let cooling=false, afterFinish=false;
   const PROG=()=> settings.program || (settings.easy ? "easy" : "regular");
   const IV=()=> cooling ? 40 : (settings.int||45);
-  const PROG_NAMES={regular:"Regular", easy:"Easy day", sg:"Swings + Get-ups", cps:"Clean · Press · Squat"};
+  const PROG_NAMES={regular:"Regular", easy:"Easy day", sg:"Swings + Get-ups", ss:"Swings + Strength", lad:"Clean & Press Ladders", sn:"Snatch Practice (advanced)", tab:"Swings - Tabata", cps:"Clean · Press · Squat"};
+  // Swings + Strength: the strength move people choose. Reps come from the exercise library (so they follow your edits and the interval).
+  // Clean & Press borrows the Overhead Press reps. Sided moves alternate sides round by round.
+  const SS_MOVES=[["gsq","Goblet Squat"],["thruster","Goblet Thruster"],["cpress","Clean & Press"],["pushup","Push-Ups"],["rlunge","Goblet Reverse Lunge"],["row","Bent-Over Row"],["halo","Halos"]];
+  function ssMove(lib){
+    const id=settings.ssMove||"gsq", byId=k=>lib.find(x=>x.id===k);
+    if(id==="cpress"){ const p=byId("press"); return {name:"Clean & Press", cue:"Clean to the rack, then press · "+(p&&p.dose?fmtDose(p.dose):"5 reps"), tag:"press", id:"cpress", sided:true}; }
+    const x=byId(id)||byId("gsq"); return {name:x.name, cue:x.cue, tag:x.tag, id:x.id, sided:x.sided}; }
   function progLabel(){ const p=PROG();
     if(p==="sg") return "Swings + Get-ups · "+(settings.sgRounds||10)+" + "+(settings.sgRounds||10);
+    if(p==="tab") return "Swings - Tabata · "+Math.round((settings.tabRounds||8)/2)+" min";
+    if(p==="sn") return "Snatch Practice · "+(settings.snSets||20)+" × "+(settings.snReps||5);
+    if(p==="lad") return "Clean & Press Ladders · "+(settings.ladN||3)+" × "+ladRungs();
+    if(p==="ss") return "Swings + Strength · "+(settings.ssRounds||10)+" rounds · "+((SS_MOVES.find(m=>m[0]===settings.ssMove)||SS_MOVES[0])[1]);
     if(p==="cps") return "Clean · Press · Squat "+(settings.cad||"2-1-3")+" · "+(settings.sets||6)+" rounds";
     return ratio()+" · "+(p==="easy"?"Easy day":"Full day"); }
   function rng(seed){ let s=seed>>>0||1; return ()=>{ s^=s<<13; s>>>=0; s^=s>>>17; s^=s<<5; s>>>=0; return s/4294967296; }; }
@@ -494,6 +552,36 @@
       const R=settings.sgRounds||10;
       for(let i=1;i<=R;i++) main.push([`Swings (${i} of ${R})`,"Snap the hips, float the bell · 10 reps","swing","swing2"]);
       for(let i=1;i<=R;i++){ const g=[`Turkish Get-Up — ${i%2?"Left":"Right"} (${i} of ${R})`,"Slow and controlled, eyes on the bell · 1 rep","TGU","tgu"]; g.dur=60; main.push(g); }   // get-ups always get a full minute
+      return {plan:w.concat(main), empty:false, slots:w.length+main.length};
+    }
+    if(prog==="tab"){
+      // Tabata gets its own warm-up: five warm-up moves at 45 s each (reps sized for 45 s), then the 20/10 rounds
+      const keep=settings.int; settings.int=45; const wl=library().filter(x=>x.on); settings.int=keep;
+      const w=[]; wl.filter(x=>x.mode==="warmup").forEach(x=>w.push(...expand(x)));
+      w.splice(5); w.forEach(e=>{ e.dur=45; });
+      const main=[], R=settings.tabRounds||8;
+      for(let i=1;i<=R;i++){ const g=[`Swings (${i} of ${R})`,"All out for 20 seconds, then rest","swing","swing2"]; g.dur=30; g.rest=10; main.push(g); }
+      return {plan:w.concat(main), empty:false, slots:w.length+main.length};
+    }
+    if(prog==="sn"){
+      const w=warmPart(lib), main=[], n=settings.snReps||5, K=settings.snSets||20;
+      for(let i=1;i<=K;i++) main.push([`${n} Snatches ${i%2?"Left":"Right"}`, `Set ${i} of ${K}, punch through at the top`, "snatch", "snatch"]);
+      return {plan:w.concat(main), empty:false, slots:w.length+main.length};
+    }
+    if(prog==="lad"){
+      const w=warmPart(lib), main=[], T=settings.ladTop||3, N=settings.ladN||3;
+      const how = settings.ladMulti ? "Clean before each press" : "Clean once, then press";
+      for(let l=1;l<=N;l++) for(let r=1;r<=T;r++) for(const side of ["Left","Right"])
+        main.push([`Clean & Press — ${side} (ladder ${l} of ${N})`, `${how} · ${r} rep${r>1?"s":""}`, "ladder", "cpress"]);
+      return {plan:w.concat(main), empty:false, slots:w.length+main.length};
+    }
+    if(prog==="ss"){
+      const all=library(), w=warmPart(lib), main=[], R=settings.ssRounds||10, sw=all.find(x=>x.id==="swing2"), mv=ssMove(all);
+      const swCue = sw ? sw.cue : "Snap the hips, float the bell · 10 reps";
+      for(let i=1;i<=R;i++){
+        main.push([`Swings (${i} of ${R})`, swCue, "swing", "swing2"]);
+        main.push([`${mv.name}${mv.sided?(i%2?" — Left":" — Right"):""} (${i} of ${R})`, mv.cue, mv.tag, mv.id]);
+      }
       return {plan:w.concat(main), empty:false, slots:w.length+main.length};
     }
     if(prog==="cps"){
@@ -577,17 +665,33 @@
   function renderChainIcon(){ try{ const n=streak(), t=$("chainNum"); t.textContent = n>999 ? "+" : n ? String(n) : "";
       t.style.fontSize = n>999 ? "11px" : n>=100 ? "6.1px" : "";
       const tip = n ? `${n}-day workout streak` : "No workout streak yet"; $("icoChain").title=tip; $("icoChain").setAttribute("aria-label",tip); }catch(e){} }
-  function renderHead(){ renderChainIcon();
+
+  // Guidance under the controls: one set of tips for the daily mix, and one for each group of named workouts
+  const GUIDE={
+    mix: `Easy, steady pace: do the suggested reps, then rest for the rest of the interval. Left/right moves always come in pairs. Your mix, settings and library are saved on this device. <b>Easy day</b> builds the session from exercises marked for easy days.<br><br>Consider increasing the number of reps in each set over time as you get more comfortable with each exercise. If and when you increase weight, consider reducing the number of reps again to make the transition as easy as possible.<br><br>Use good form, don't do any exercises you are uncomfortable or unfamiliar with, and use your best judgement to work out safely.`,
+    cp: `Each interval is one side. Clean the bell to the rack, do the reps, and rest for what's left of the interval. Small rungs and short sets are built-in rest, so use them.<br><br>Progress slowly: add a rung or a round before you add weight. When you move up a bell size, drop back to a shorter ladder or fewer rounds and build up again.<br><br>Press only what you can press strictly, with glutes and abs tight and no leaning back. If the bell's path or your lower back starts to wander, end the set early.<br><br>Get professional coaching, use good technique, and stop if you feel any sharp pain or discomfort.<br><br>Your settings and library are saved on this device.`,
+    sw: `Swings are a hip snap, not a squat or an arm lift. Hike the bell back, stand up hard, and let it float. Then rest for the rest of the interval: crisp sets beat tired ones.<br><br>Add reps a little at a time, or shorten the interval. When you go up a bell size, drop back to fewer reps and build up again. In Tabata, keep good form for all 20 seconds rather than chasing reps.<br><br>Stop a set when your back takes over from your hips, or your grip starts to fail. Get-ups should be slow and controlled, with your eyes on the bell the whole time.<br><br>Get professional coaching, use good technique, and stop if you feel any sharp pain or discomfort.<br><br>Your settings and library are saved on this device.`,
+    sn: `A snatch is like a clean and press in one smooth motion, without a pause in the rack, driven by the hips rather than the arm. Punch through at the top so the bell rolls around your wrist instead of flipping over and banging it. Switch hands every set and use the rest to recover your grip.<br><br>Consider lowering the bell to the rack position on the way down at the start, before dropping it into the next backswing. Build towards the 100-snatches-in-5-minutes standard over weeks, not days: add a rep per set, or shorten the rest, one step at a time.<br><br>Look after your hands. Watch for hot spots or tears, and stop if your shoulder or lower back complains. If you're new to snatching, learn it from a coach before using this workout.<br><br>Get professional coaching, use good technique, and stop if you feel any sharp pain or discomfort.<br><br>Your settings and library are saved on this device.`
+  };
+  function renderGuide(){ const p=PROG(), g = p==="lad"||p==="cps" ? "cp" : p==="sg"||p==="ss"||p==="tab" ? "sw" : p==="sn" ? "sn" : "mix";
+    const el_=$("guideNote"); if(el_ && el_.dataset.g!==g){ el_.innerHTML=GUIDE[g]; el_.dataset.g=g; } }
+  function renderHead(){ renderChainIcon(); renderGuide();
     const p=PROG();
     $("sub").textContent = cooling ? "Cool-down" : p==="cps" ? "Clean · Press · Squat "+(settings.cad||"2-1-3") : PROG_NAMES[p];
-    $("progSel").value=p; $("cadSel").value=settings.cad||"2-1-3"; $("setsSel").value=String(settings.sets||6); $("sgSel").value=String(settings.sgRounds||10);
+    $("progSel").value=p; $("cadSel").value=settings.cad||"2-1-3"; $("setsSel").value=String(settings.sets||6); $("sgSel").value=String(settings.sgRounds||10); $("ssSel").value=String(settings.ssRounds||10); $("tabSel").value=String(Math.round((settings.tabRounds||8)/2)); $("snRepsSel").value=String(settings.snReps||5); $("snSetsSel").value=String(settings.snSets||20); $("ladTopSel").value=String(settings.ladTop||3); $("ladNSel").value=String(settings.ladN||3); $("ladMultiChk").checked=!!settings.ladMulti;
+    if(!$("ssMoveSel").options.length) SS_MOVES.forEach(([v,t])=>$("ssMoveSel").append(el("option",{value:v,textContent:t})));
+    $("ssMoveSel").value=settings.ssMove||"gsq";
     $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
     const mix = p==="regular"||p==="easy";
     $("lenWrap").hidden = $("scaleWrap").hidden = !mix;
     $("intWrap").hidden = false; $("intLbl").textContent = p==="sg" ? "Swing interval" : "Interval";
     $("cadWrap").hidden = $("setsWrap").hidden = p!=="cps";
     $("sgWrap").hidden = p!=="sg";
-    $("optNote").textContent = p==="sg" ? `Warm-up, then ${settings.sgRounds||10} sets of swings (1- or 2-handed) every ${settings.int||45}s, followed by ${settings.sgRounds||10} get-ups every 60s, alternating sides.` : p==="cps" ? cpsNote() : "";
+    $("ssWrap").hidden = $("ssMoveWrap").hidden = p!=="ss";
+    $("ladTopWrap").hidden = $("ladNWrap").hidden = $("ladMultiWrap").hidden = p!=="lad";
+    $("snRepsWrap").hidden = $("snSetsWrap").hidden = p!=="sn";
+    $("tabWrap").hidden = p!=="tab"; if(p==="tab") $("intWrap").hidden = true;
+    $("optNote").textContent = p==="tab" ? tabNote() : p==="sn" ? snNote() : p==="lad" ? ladNote() : p==="ss" ? ssNote() : p==="sg" ? `Warm-up, then ${settings.sgRounds||10} sets of swings (1- or 2-handed) every ${settings.int||45}s, followed by ${settings.sgRounds||10} get-ups every 60s, alternating sides.` : p==="cps" ? cpsNote() : "";
   }
   // ---------- Something to read under the controls: one card per set ----------
   // Original lines (no attributed quotes). Sponsor slot stays off until there's a deal.
@@ -737,7 +841,12 @@
     if(!running) return;
     const whole=Math.ceil(rem);
     if(whole<=3 && whole>=1 && lastBeep!==whole){ lastBeep=whole; beep(660,0.09); }
-    if(!saidNext && rem<=10 && plan[idx+1]){ saidNext=true; say(((PROG()==="regular"||PROG()==="easy") && !cooling ? "Set "+(idx+2)+", " : "")+announce(plan[idx+1])); }
+    const curE=plan[idx];
+    if(curE && curE.rest && rem<=curE.rest){                       // Tabata: last 10 s of each round are rest
+      if($("exName").textContent!=="Rest"){ $("exName").textContent="Rest"; $("exCue").textContent= plan[idx+1] ? "Next: "+plan[idx+1][0] : "Last round done"; }
+      if(!saidNext){ saidNext=true; say("Rest"); }
+    }
+    else if(!saidNext && rem<=10 && plan[idx+1]){ saidNext=true; say(((PROG()==="regular"||PROG()==="easy") && !cooling ? "Set "+(idx+2)+", " : "")+announce(plan[idx+1])); }
     if(rem<=0) go(idx+1,true);
   }
   // ---------- Scrolling exercise list ----------
@@ -801,7 +910,11 @@
   }
   function startPreroll(){
     const first=plan[0], P_=PROG(), setPre=(P_==="regular"||P_==="easy")?"Set 1, ":"";
-    const intro = P_==="sg" ? `Swings and get-ups. A short warm-up, then ${settings.sgRounds||10} sets of swings every ${IV()} seconds, followed by ${settings.sgRounds||10} get-ups, one every minute.`
+    const intro = P_==="tab" ? `Tabata swings. A short warm-up, then ${settings.tabRounds||8} rounds: twenty seconds of swings, ten seconds of rest.`
+               : P_==="sn" ? `Snatch practice. A short warm-up, then ${settings.snSets||20} sets of ${settings.snReps||5} snatches, switching hands, every ${IV()} seconds.`
+               : P_==="lad" ? `Clean and press ladders. A short warm-up, then ${settings.ladN||3} ladders of ${ladRungs().split("-").join(", ")}, one side then the other, ${IV()} seconds each.`
+               : P_==="ss" ? `Swings and strength. A short warm-up, then ${settings.ssRounds||10} rounds of swings and ${ssMove(library()).name.toLowerCase()}, ${IV()} seconds each.`
+               : P_==="sg" ? `Swings and get-ups. A short warm-up, then ${settings.sgRounds||10} sets of swings every ${IV()} seconds, followed by ${settings.sgRounds||10} get-ups, one every minute.`
                : P_==="cps" ? `Clean, press, squat, ${IV()===60?"every minute on the minute":"every "+IV()+" seconds"}. A short warm-up, then ${settings.sets||6} rounds of ${(settings.cad||"2-1-3").split("-").join(", ")}.`
                : `${settings.len} minute ${P_==="easy"?"easy":"full"} workout. ${plan.length} intervals, ${IV()} seconds each.`;
     track("workout-start",{workout:PROG()});
@@ -1191,7 +1304,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.9";
+  const APP_VERSION = "1.9.10";
   try{ $("verTag").textContent="v"+APP_VERSION; }catch(e){}
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
@@ -1267,7 +1380,7 @@
   function b32dec(str){ const out=[]; let bits=0,val=0; for(const ch of str){ const i=B32.indexOf(ch); if(i<0) throw new Error("bad"); val=(val<<5)|i; bits+=5; if(bits>=8){ out.push((val>>>(bits-8))&255); bits-=8; } } return new Uint8Array(out); }
   function exportCode(withChain){
     const custom=user.custom.map(c=>({id:c.id,name:c.name,cue:c.cue,mode:c.mode,sided:c.sided,freq:c.freq}));
-    const payload={v:1,s:{len:settings.len,int:settings.int,easy:PROG()==="easy",program:PROG(),cad:settings.cad,sets:settings.sets,sgRounds:settings.sgRounds,seed:curSeed(),scale:settings.scale!==false},o:user.over,c:custom};
+    const payload={v:1,s:{len:settings.len,int:settings.int,easy:PROG()==="easy",program:PROG(),cad:settings.cad,sets:settings.sets,sgRounds:settings.sgRounds,ssRounds:settings.ssRounds,ssMove:settings.ssMove,ladTop:settings.ladTop,ladN:settings.ladN,ladMulti:!!settings.ladMulti,snReps:settings.snReps,snSets:settings.snSets,tabRounds:settings.tabRounds,seed:curSeed(),scale:settings.scale!==false},o:user.over,c:custom};
     if(withChain){ payload.h=hist(); payload.g=!!settings.grace; }
     return "w"+b32enc(new TextEncoder().encode(JSON.stringify(payload)));
   }
@@ -1279,7 +1392,7 @@
   }
   function applyCode(p){
     user={over:p.o||{},custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))}; saveUser();
-    Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,program:p.s.program||(p.s.easy?"easy":"regular"),cad:p.s.cad||"2-1-3",sets:+p.s.sets||6,sgRounds:+p.s.sgRounds||10,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false}); fixRounds();
+    Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,program:p.s.program||(p.s.easy?"easy":"regular"),cad:p.s.cad||"2-1-3",sets:+p.s.sets||6,sgRounds:+p.s.sgRounds||10,ssRounds:+p.s.ssRounds||10,ssMove:p.s.ssMove||"gsq",ladTop:+p.s.ladTop||3,ladN:+p.s.ladN||3,ladMulti:!!p.s.ladMulti,snReps:+p.s.snReps||5,snSets:+p.s.snSets||20,tabRounds:+p.s.tabRounds||8,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false}); fixRounds();
     try{ storeOpts(); }catch(e){}
     if(p.h && typeof p.h==="object"){ const h=hist(); Object.keys(p.h).forEach(k=>{ const e=p.h[k]; if(/^\d{4}-\d\d-\d\d$/.test(k) && e && e.b>=0 && e.b<=3) h[k]={b:+e.b, m:+e.m||0}; if(Array.isArray(e.x)){ const x=e.x.map(Number).filter(v=>v>=0&&v<=3&&v!==+e.b); if(x.length) h[k].x=x; } }); trimHist(); settings.grace=!!p.g; }
     else if(Array.isArray(p.d)){ const h=hist(); p.d.forEach(k=>{ if(/^\d{4}-\d\d-\d\d$/.test(k) && !h[k]) h[k]={b:1,m:0}; }); settings.grace=!!p.g; }
@@ -1440,7 +1553,7 @@
     hist();                                   // make sure the real chain is set up before copying
     guest={user, settings};
     user={over:JSON.parse(JSON.stringify(p.o||{})), custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))};
-    settings=Object.assign({}, guest.settings, {len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,program:p.s.program||(p.s.easy?"easy":"regular"),cad:p.s.cad||"2-1-3",sets:+p.s.sets||6,sgRounds:+p.s.sgRounds||10,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false}); fixRounds();
+    settings=Object.assign({}, guest.settings, {len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,program:p.s.program||(p.s.easy?"easy":"regular"),cad:p.s.cad||"2-1-3",sets:+p.s.sets||6,sgRounds:+p.s.sgRounds||10,ssRounds:+p.s.ssRounds||10,ssMove:p.s.ssMove||"gsq",ladTop:+p.s.ladTop||3,ladN:+p.s.ladN||3,ladMulti:!!p.s.ladMulti,snReps:+p.s.snReps||5,snSets:+p.s.snSets||20,tabRounds:+p.s.tabRounds||8,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false}); fixRounds();
     settings.hist=guest.settings.hist;        // finishing still counts toward your own chain
     settings.opts=JSON.parse(JSON.stringify(guest.settings.opts||{}));   // a guest's option changes never touch your own
     $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int); $("scaleChk").checked=settings.scale!==false;
@@ -1457,7 +1570,7 @@
     const p=parseCode(h); if(!p) return;
     const clear=()=>{ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){ try{ location.hash=""; }catch(_){} } };
     const n=Math.round(p.s.len*60/p.s.int), pg=p.s.program||(p.s.easy?"easy":"regular");
-    const what = pg==="sg" ? `Swings + Get-ups workout: ${p.s.sgRounds||10} sets of swings and ${p.s.sgRounds||10} get-ups` : pg==="cps" ? `Clean · Press · Squat workout: ${p.s.sets||6} rounds of ${p.s.cad||"2-1-3"}, ${(+p.s.int||60)===60?"every minute":"every "+p.s.int+" seconds"}` : null;
+    const what = pg==="tab" ? `Swings - Tabata workout: ${p.s.tabRounds||8} rounds of 20 seconds on, 10 seconds off` : pg==="sn" ? `Snatch Practice workout: ${p.s.snSets||20} sets of ${p.s.snReps||5} snatches, switching hands` : pg==="lad" ? `Clean & Press Ladders workout: ${p.s.ladN||3} ladders of ${Array.from({length:+p.s.ladTop||3},(_,i)=>i+1).join("-")}` : pg==="ss" ? `Swings + Strength workout: ${p.s.ssRounds||10} rounds of swings and ${((SS_MOVES.find(m=>m[0]===p.s.ssMove)||SS_MOVES[0])[1]).toLowerCase()}` : pg==="sg" ? `Swings + Get-ups workout: ${p.s.sgRounds||10} sets of swings and ${p.s.sgRounds||10} get-ups` : pg==="cps" ? `Clean · Press · Squat workout: ${p.s.sets||6} rounds of ${p.s.cad||"2-1-3"}, ${(+p.s.int||60)===60?"every minute":"every "+p.s.int+" seconds"}` : null;
     if(p.h){ clear(); return; }               // setup codes (with a chain) are loaded from the share menu, not links
     if(!isReturningUser()){                   // new here: their first workout is the one they were sent
       applyCode(p); clear();
@@ -1492,6 +1605,14 @@
   $("progSel").onchange=e=>{ storeOpts(); settings.program=e.target.value; settings.easy=(settings.program==="easy"); loadOpts(settings.program); saveSettings(); changed(); renderHead(); };
   $("cadSel").onchange=e=>{ settings.cad=e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
   $("setsSel").onchange=e=>{ settings.sets=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("tabSel").onchange=e=>{ settings.tabRounds=2*(+e.target.value); storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("snRepsSel").onchange=e=>{ settings.snReps=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("snSetsSel").onchange=e=>{ settings.snSets=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("ladTopSel").onchange=e=>{ settings.ladTop=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("ladNSel").onchange=e=>{ settings.ladN=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("ladMultiChk").onchange=e=>{ settings.ladMulti=e.target.checked; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("ssSel").onchange=e=>{ settings.ssRounds=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
+  $("ssMoveSel").onchange=e=>{ settings.ssMove=e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
   $("sgSel").onchange=e=>{ settings.sgRounds=+e.target.value; storeOpts(); saveSettings(); changed(); renderHead(); };
   $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
   $("voiceChk").checked=settings.voice; $("beepChk").checked=settings.beep; $("scrollChk").checked=!!settings.scroll;
