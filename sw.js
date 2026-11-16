@@ -1,7 +1,7 @@
 // Kettlebell Catalyst offline support: keep a copy of the app on the device.
 // Pages load from the network when it's available (so updates arrive right away)
 // and fall back to the saved copy when there's no signal.
-const CACHE = "kbc-v1.9.22";
+const CACHE = "kbc-v1.9.23";
 const FILES = ["./", "index.html", "manifest.json", "quotes.txt", "tips.txt", "icon-192.png", "icon-512.png", "icon-maskable-512.png",
                "apple-touch-icon.png", "favicon-32.png", "favicon-16.png"];
 

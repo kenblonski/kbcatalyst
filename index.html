@@ -34,7 +34,7 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
   body{padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px);}
   .wrap{max-width:640px;margin:0 auto}
-  header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:-12px -16px 10px;padding:12px 16px 8px;position:sticky;top:0;z-index:20;background:var(--bg);box-shadow:0 6px 10px -8px rgba(0,0,0,.7)}
   h1{font-size:20px;margin:0;letter-spacing:.3px}
   .sub{color:var(--accent);font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
   header>div:first-child{flex:1;min-width:0}
@@ -864,9 +864,10 @@
       const items=[...$("list").children].filter(x=>!x.classList.contains("qli")); if(!items.length || idx<0) return;
       const top=Math.max(0, idx-4);                       // once set 5 is done, set 6 starts and set 1 slides off the top
       const li= top===0 ? $("list").firstElementChild : items[Math.min(top,items.length-1)], last=items[items.length-1];
-      const y=li.getBoundingClientRect().top+window.scrollY-(top?0:8);
+      const hd=(document.querySelector("header")||{}).offsetHeight||0;
+      const y=li.getBoundingClientRect().top+window.scrollY-(top?0:8)-hd;
       const maxY=last.getBoundingClientRect().bottom+window.scrollY-window.innerHeight;   // last set sits at the bottom edge
-      smoothScrollTo(Math.max(0, Math.min(y, Math.max(maxY, $("list").firstElementChild.getBoundingClientRect().top+window.scrollY-8))), idx===0?700:1600);
+      smoothScrollTo(Math.max(0, Math.min(y, Math.max(maxY, $("list").firstElementChild.getBoundingClientRect().top+window.scrollY-8-hd))), idx===0?700:1600);
     }catch(e){}
   }
 
@@ -1238,16 +1239,17 @@
   // ---------- Fix my chain (last 30 days) ----------
   function openChainEditor(){
     openModal("Your chain",b=>{
-      // Another workout today (a walk, a run, a class) — counts once for the chain, shows as another rectangle on the card
+      // Another workout (a walk, a run, a class, or a session after midnight) — counts once for the chain, shows as another rectangle on the card
       { const row=el("div",{className:"btnrow"}); row.style.alignItems="center"; row.style.margin="4px 0 12px";
+        const ds=el("select"); [["0","Today"],["1","Yesterday"]].forEach(([v,t])=>ds.append(el("option",{value:v,textContent:t})));
         const bs=el("select"); [["0","🌅 early"],["1","☀️ day"],["2","🌇 evening"],["3","🌙 night"]].forEach(([v,t])=>bs.append(el("option",{value:v,textContent:t})));
         bs.value=String(bandOf(new Date().getHours()));
-        const add=el("button",{className:"small primary",textContent:"Add a workout today"});
-        add.onclick=()=>{ const h=hist(), k=dkey(new Date()), band=+bs.value, e=h[k];
-          if(!e) h[k]={b:band,m:30,h:new Date().getHours(),t:"Other workout"};
+        const add=el("button",{className:"small primary",textContent:"Add"});
+        add.onclick=()=>{ const ago=+ds.value, h=hist(), k=dkey(addDays(new Date(),-ago)), band=+bs.value, e=h[k];
+          if(!e){ h[k]={b:band,m:30,t:"Other workout"}; if(!ago) h[k].h=new Date().getHours(); }
           else if(e.b!==band && !(e.x||[]).includes(band)) e.x=(e.x||[]).concat(band);
-          trimHist(); saveSettings(); renderChainIcon(); track("chain-add"); openChainEditor(); };
-        b.append(P("Did another workout today, like a walk, a run or a class? Add it here."), row); row.append(bs, add); }
+          trimHist(); saveSettings(); renderChainIcon(); track("chain-add",{day:ago?"yesterday":"today"}); openChainEditor(); };
+        b.append(P("Did another workout, like a walk, a run or a class? Add it here."), row); row.append(ds, bs, add); }
       b.append(P("Trained without the app, or lost a session? Set any of the last 30 days here. Honour system."));
       const list=el("ul",{className:"lib"}); b.append(list);
       const LENS=[10,20,30,45,60];
@@ -1304,7 +1306,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.9.22";
+  const APP_VERSION = "1.9.23";
   try{ $("verTag").textContent="v"+APP_VERSION; }catch(e){}
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
