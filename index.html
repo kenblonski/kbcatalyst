@@ -46,8 +46,8 @@
   .icons.rail{flex-direction:column;gap:8px}
   .chainico svg{width:36px!important;height:36px!important}
   .chainico svg .h{fill:none;stroke:#f2d21b;stroke-width:2.4}
-  .chainico svg .b{fill:#f2d21b;stroke:none}
-  .chainico svg text{font:800 8.4px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;fill:#15171b;stroke:none}
+  .chainico svg .b{fill:none;stroke:var(--accent2);stroke-width:1.5;stroke-linejoin:round}
+  .chainico svg text{font:800 8.4px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;fill:var(--accent2);stroke:none}
   .icons button{width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:12px;color:var(--text)}
   .icons svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;z-index:50}
@@ -1304,7 +1304,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.9.20";
+  const APP_VERSION = "1.9.21";
   try{ $("verTag").textContent="v"+APP_VERSION; }catch(e){}
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
