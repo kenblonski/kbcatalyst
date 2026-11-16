@@ -183,7 +183,8 @@
   </div>
     <div class="icons rail">
         <button id="icoChain" class="chainico" aria-label="Your chain" title="Your chain"><svg viewBox="0 0 24 24"><path class="b" fill-rule="evenodd" d="M7.33 1.5 L16.67 1.5 Q18.74 1.5 18.74 3.57 L18.74 6.94 C18.87 10.06 19.32 13.3 19.26 16.02 C19.19 19.91 18.22 22.18 16.28 22.5 L7.72 22.5 C5.78 22.18 4.81 19.91 4.74 16.02 C4.68 13.3 5.13 10.06 5.26 6.94 L5.26 3.57 Q5.26 1.5 7.33 1.5 Z M8.63 3.57 L15.37 3.57 Q16.41 3.57 16.41 4.61 L16.41 7.72 Q16.41 8.82 15.31 8.89 C14.07 8.91 13.17 8.63 12.0 8.63 C10.83 8.63 9.93 8.91 8.69 8.89 Q7.59 8.82 7.59 7.72 L7.59 4.61 Q7.59 3.57 8.63 3.57 Z"/><text id="chainNum" x="12" y="19.41" text-anchor="middle"></text></svg></button>
-        <button id="icoHealth" aria-label="Health and privacy" title="Health & privacy"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
+        <button id="icoHealth" aria-label="Health and safety" title="Health & safety"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
+        <button id="icoPrivacy" aria-label="Privacy" title="Privacy"><svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/><path d="M4 20 20 4"/></svg></button>
         <button id="icoAbout" aria-label="About this site" title="About this site"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/></svg></button>
         <button id="icoShare" aria-label="Share this site" title="Share this site"><svg viewBox="0 0 24 24"><path d="M8.5 9.5H6.5v11h11v-11h-2"/><path d="M12 14.5V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/></svg></button>
       </div>
@@ -1087,14 +1088,18 @@
   }
 
   // ---------- Health disclaimer ----------
-  $("icoHealth").onclick=()=>openModal("Health & privacy",b=>{
+  $("icoHealth").onclick=()=>openModal("Health & safety",b=>{
     b.append(
       P("Kettlebell Catalyst is a workout timer for general fitness. It isn't medical advice and doesn't replace a doctor, physiotherapist or qualified coach."),
       P("Check with your doctor before starting a new exercise routine, especially if you have a health condition or an injury, are pregnant, or haven't exercised in a while."),
       P("Learn each movement with good form and a light bell before using it here, ideally from a qualified coach. Choose a weight you can control for every exercise on your list, and switch off anything you're not comfortable doing."),
       P("Stop right away if you feel pain, dizziness, chest discomfort or unusual shortness of breath."),
-      P("You use Kettlebell Catalyst at your own risk."),
-      H("Privacy"),
+      P("You use Kettlebell Catalyst at your own risk.")
+    );
+  });
+
+  $("icoPrivacy").onclick=()=>openModal("Privacy",b=>{
+    b.append(
       P("Your settings, exercise library and workout history stay on this device. They aren't sent anywhere or stored on a server."),
       P("The site counts anonymous visits and workouts to see how it's used: whether a visit is new or returning, which workout was done, and a rough streak range. Counting is done by Umami, a privacy-friendly analytics service that uses no cookies and collects no personal information. There are no accounts or sign-ups."),
       P("When you share a workout, the link contains your workout settings and exercise choices so a friend can use them. Your chain history is only included if you make a setup code to move it to another device."),
@@ -1125,7 +1130,7 @@
       el("p",{},"Kettlebell Catalyst is free, with no accounts or sign-ups. If it helps you keep your chain going, you can ",
         (()=>{ const a=el("a",{href:"https://ko-fi.com/kbcatalyst",target:"_blank",rel:"noopener",textContent:"buy me a coffee on Ko-fi",style:"color:var(--accent2)"}); a.onclick=()=>track("kofi",{from:"about"}); return a; })(),
         ". It helps keep it free."),
-      el("p",{className:"ok",textContent:"Version 1.8.2"}),
+      el("p",{className:"ok",textContent:"Version 1.8.3"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
