@@ -1463,7 +1463,11 @@
       applyCode(p); clear();
       openModal("Welcome to Kettlebell Catalyst",b=>{
         b.append(P(what ? `You've been sent a ${what}. It's loaded and ready.` : `You've been sent a ${p.s.len}-minute ${p.s.easy?"easy":"full"} day: ${n} exercises at ${p.s.int} seconds each. It's loaded and ready.`),
+                 P("Kettlebell Catalyst is a free workout timer for one kettlebell: it plans each set, talks you through it, and keeps a daily chain. Nothing to install, no account."),
                  P("Press Start when your bell is ready. You can make it your own later in the exercise library."));
+        { const hl=el("p",{className:"ok"}); hl.append("New to kettlebells? Please read the ");
+          const a=el("a",{href:"#",textContent:"health note",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); $("icoHealth").onclick(); };
+          hl.append(a," and Greg Brookes' ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first. The ⓘ icon on the right tells you more about the app."); b.append(hl); }
         const ok=el("button",{className:"small primary",textContent:"Let's go"}); ok.onclick=closeModal;
         b.append(el("div",{className:"btnrow"},ok));
       });
