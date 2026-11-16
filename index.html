@@ -185,7 +185,8 @@
         <button id="icoChain" class="chainico" aria-label="Your chain" title="Your chain"><svg viewBox="0 0 24 24"><path class="b" fill-rule="evenodd" d="M7.33 1.5 L16.67 1.5 Q18.74 1.5 18.74 3.57 L18.74 6.94 C18.87 10.06 19.32 13.3 19.26 16.02 C19.19 19.91 18.22 22.18 16.28 22.5 L7.72 22.5 C5.78 22.18 4.81 19.91 4.74 16.02 C4.68 13.3 5.13 10.06 5.26 6.94 L5.26 3.57 Q5.26 1.5 7.33 1.5 Z M8.63 3.57 L15.37 3.57 Q16.41 3.57 16.41 4.61 L16.41 7.72 Q16.41 8.82 15.31 8.89 C14.07 8.91 13.17 8.63 12.0 8.63 C10.83 8.63 9.93 8.91 8.69 8.89 Q7.59 8.82 7.59 7.72 L7.59 4.61 Q7.59 3.57 8.63 3.57 Z"/><text id="chainNum" x="12" y="19.41" text-anchor="middle"></text></svg></button>
         <button id="icoHealth" aria-label="Health and safety" title="Health & safety"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
         <button id="icoPrivacy" aria-label="Privacy" title="Privacy"><svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/><path d="M4 20 20 4"/></svg></button>
-        <button id="icoAbout" aria-label="About this site" title="About this site"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/></svg></button>
+        <button id="icoAbout" aria-label="About this site" title="About this site"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.6"/><path d="M12 7.6v.2" stroke-width="2.6"/></svg></button>
+        <button id="icoHelp" aria-label="Help and feedback" title="Help & feedback"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/></svg></button>
         <button id="icoShare" aria-label="Share this site" title="Share this site"><svg viewBox="0 0 24 24"><path d="M8.5 9.5H6.5v11h11v-11h-2"/><path d="M12 14.5V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/></svg></button>
       </div>
   </div>
@@ -1109,7 +1110,28 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const FEEDBACK = ""; // TODO: Ken's email or form link
+  const APP_VERSION = "1.8.6";
+  const FEEDBACK = "hello@kbcatalyst.ca";
+  // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
+  function deviceInfo(){
+    const ua=navigator.userAgent||"", ipad=/iPad/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+    let dev = /iPhone/.test(ua)?"iPhone" : ipad?"iPad" : /Android/.test(ua)?(/Mobile/.test(ua)?"Android phone":"Android tablet") : /Macintosh/.test(ua)?"Mac" : /Windows/.test(ua)?"Windows PC" : /CrOS/.test(ua)?"Chromebook" : /Linux/.test(ua)?"Linux PC" : "Unknown device";
+    let os = "";
+    let m = ua.match(/OS (\d+)[_.](\d+)/); if((/iPhone|iPad/.test(ua)) && m) os="iOS "+m[1]+"."+m[2];
+    if(!os && (m=ua.match(/Android (\d+(\.\d+)?)/))) os="Android "+m[1];
+    if(!os && /Mac OS X/.test(ua)) os="macOS";        // browsers freeze the Mac version number, so don't report it
+    if(!os && /Windows NT 10/.test(ua)) os="Windows 10/11";
+    const br = /Edg\//.test(ua)?"Edge" : /SamsungBrowser/.test(ua)?"Samsung Internet" : /Firefox|FxiOS/.test(ua)?"Firefox" : /CriOS|Chrome/.test(ua)?"Chrome" : /Safari/.test(ua)?"Safari" : "Other browser";
+    let installed=false; try{ installed = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true; }catch(e){}
+    return `${dev}${os?" · "+os:""} · ${br} · ${installed?"installed app":"in the browser"} · screen ${screen.width}×${screen.height} · app version ${APP_VERSION}`;
+  }
+  function feedbackMailto(){
+    const body=["How I use Kettlebell Catalyst (which workouts, how often):","","",
+      "Issues I've noticed:","","",
+      "Comments or suggestions:","","",
+      "— My device (filled in automatically) —", deviceInfo()].join("\n");
+    return "mailto:"+FEEDBACK+"?subject="+encodeURIComponent("Kettlebell Catalyst feedback")+"&body="+encodeURIComponent(body);
+  }
   function openAbout(firstRun){ openModal(firstRun ? "Welcome to Kettlebell Catalyst" : "About Kettlebell Catalyst",b=>{
     b.append(
       P("Kettlebell Catalyst intends to lower workout activation energy by providing simple programs that meet the time requirements of busy people, with as little equipment and setup as possible."),
@@ -1118,25 +1140,9 @@
         " are a great option), visit the kbcatalyst.ca site on your mobile device, select a workout length and exercise duration, and review the workout planned for you. It is as easy as pressing Start and listening to the prompts."),
       P("There is no app to install, although the site does save your preferences on your device and records your workout frequency. Site settings are device specific."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email. Your exercise preferences and workout streak are saved on your device."),
-      H("Learning the moves"),
-      el("p",{},"New to kettlebells? Start with Greg Brookes' ",
-        el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"Beginner's Guide to Kettlebell Training",style:"color:var(--accent2)"}),
-        ". For how a particular exercise is done, see his ",
-        el("a",{href:"https://kettlebellsworkouts.com/kettlebell-exercises/",target:"_blank",rel:"noopener",textContent:"library of 52 kettlebell exercises",style:"color:var(--accent2)"}),"."),
-      el("p",{},"Prefer video? ",
-        el("a",{href:"https://www.youtube.com/c/MarkWildman",target:"_blank",rel:"noopener",textContent:"Mark Wildman's YouTube channel",style:"color:var(--accent2)"}),
-        " has detailed walkthroughs of the swing, get-up, clean and press, and more."),
-      H("Support"),
-      el("p",{},"Kettlebell Catalyst is free, with no accounts or sign-ups. If it helps you keep your chain going, you can ",
-        (()=>{ const a=el("a",{href:"https://ko-fi.com/kbcatalyst",target:"_blank",rel:"noopener",textContent:"buy me a coffee on Ko-fi",style:"color:var(--accent2)"}); a.onclick=()=>track("kofi",{from:"about"}); return a; })(),
-        ". It helps keep it free."),
-      el("p",{className:"ok",textContent:"Version 1.8.3"}),
-      H("Questions & feedback")
+      P("Links for learning the moves, feedback and support are under the speech bubble."),
+      el("p",{className:"ok",textContent:"Version "+APP_VERSION})
     );
-    if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
-      b.append(isLink ? el("p",{},el("a",{href:FEEDBACK,textContent:"Send feedback",target:"_blank",rel:"noopener",style:"color:var(--accent2)"}))
-                      : P("Email: "+FEEDBACK)); }
-    else b.append(P("A feedback link is coming soon. In the meantime, tell the person who shared this with you."));
     if(firstRun){
       const hl=el("p",{className:"ok"}); hl.append("New to kettlebells? Please read the ");
       const a=el("a",{href:"#",textContent:"health note",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); $("icoHealth").onclick(); };
@@ -1146,6 +1152,32 @@
     }
   }); }
   $("icoAbout").onclick=()=>openAbout(false);
+  function openHelp(){ openModal("Help & feedback",b=>{
+    b.append(
+      H("Learning the moves"),
+      el("p",{},"New to kettlebells? Start with Greg Brookes' ",
+        el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"Beginner's Guide to Kettlebell Training",style:"color:var(--accent2)"}),
+        ". For how a particular exercise is done, see his ",
+        el("a",{href:"https://kettlebellsworkouts.com/kettlebell-exercises/",target:"_blank",rel:"noopener",textContent:"library of 52 kettlebell exercises",style:"color:var(--accent2)"}),"."),
+      el("p",{},"Prefer video? ",
+        el("a",{href:"https://www.youtube.com/c/MarkWildman",target:"_blank",rel:"noopener",textContent:"Mark Wildman's YouTube channel",style:"color:var(--accent2)"}),
+        " has detailed walkthroughs of the swing, get-up, clean and press, and more.")
+    );
+    b.append(H("Questions & feedback"));
+    if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
+      b.append(isLink ? el("p",{},el("a",{href:FEEDBACK,textContent:"Send feedback",target:"_blank",rel:"noopener",style:"color:var(--accent2)"}))
+                      : el("p",{},"Questions, ideas or bugs? Email ",
+                          el("a",{href:feedbackMailto(),textContent:FEEDBACK,style:"color:var(--accent2)"}),
+                          ". I read everything. Your device details are filled in for you, so just add your comments.")); }
+    else b.append(P("A feedback link is coming soon. In the meantime, tell the person who shared this with you."));
+    b.append(
+      H("Support"),
+      el("p",{},"Kettlebell Catalyst is free, with no accounts or sign-ups. If it helps you keep your chain going, you can ",
+        (()=>{ const a=el("a",{href:"https://ko-fi.com/kbcatalyst",target:"_blank",rel:"noopener",textContent:"buy me a coffee on Ko-fi",style:"color:var(--accent2)"}); a.onclick=()=>track("kofi",{from:"help"}); return a; })(),
+        ". It helps keep it free.")
+    );
+  }); }
+  $("icoHelp").onclick=openHelp;
 
   // ---------- Share codes (letters & digits only, so they survive in a link) ----------
   const B32="abcdefghijklmnopqrstuvwxyz234567";
