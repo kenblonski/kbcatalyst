@@ -38,6 +38,13 @@
   header>div:first-child{flex:1;min-width:0}
   .prog{color:var(--muted,#9aa0a6);font-size:14px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .icons{display:flex;gap:6px;flex:none}
+  .stage{display:flex;gap:8px;align-items:flex-start}
+  .stagemain{flex:1;min-width:0}
+  .icons.rail{flex-direction:column;gap:8px}
+  .chainico svg{width:36px!important;height:36px!important}
+  .chainico svg .h{fill:none;stroke:#f2d21b;stroke-width:2.4}
+  .chainico svg .b{fill:#f2d21b;stroke:none}
+  .chainico svg text{font:800 8.4px -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;fill:#15171b;stroke:none}
   .icons button{width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:12px;color:var(--text)}
   .icons svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center;z-index:50}
@@ -142,6 +149,8 @@
   .addform .r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .addform input[type=text]{flex:1;min-width:0}
 </style>
+<!-- Anonymous usage counts (Umami). Only counts on kbcatalyst.ca; no cookies, no personal data. -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="528f567d-59f9-4e49-85c1-4c08c25ccccb" data-domains="kbcatalyst.ca,www.kbcatalyst.ca"></script>
 </head>
 <body>
 <div class="wrap">
@@ -151,14 +160,11 @@
       <div class="sub"><span id="meta">0:00 / 45:00</span></div>
       <div class="prog" id="sub">Full day</div>
     </div>
-    <div class="icons">
-      <button id="icoHealth" aria-label="Health disclaimer" title="Health disclaimer"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
-      <button id="icoAbout" aria-label="About and feedback" title="About & feedback"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/></svg></button>
-      <button id="icoShare" aria-label="Share and install" title="Share & install"><svg viewBox="0 0 24 24"><path d="M8.5 9.5H6.5v11h11v-11h-2"/><path d="M12 14.5V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/></svg></button>
-    </div>
   </header>
 
   <div class="warnbox" style="margin:0 0 10px" id="guestBar" hidden>Guest workout from a shared link. Your own setup is untouched. <button class="small" id="guestExit">Back to my workout</button></div>
+  <div class="stage">
+  <div class="stagemain">
   <div class="card now" id="nowCard">
     <div class="slot" id="slotLbl">Ready</div>
     <div class="ex" id="exName">Press Start</div>
@@ -173,6 +179,14 @@
     <div class="chainbig" id="finishChain"></div>
     <button class="small" id="fixChainFinish" style="margin-top:4px">Fix my chain</button>
     <div class="btnrow" style="justify-content:center"><button class="small primary" id="finishShare">Share today's workout</button></div>
+  </div>
+  </div>
+    <div class="icons rail">
+        <button id="icoChain" class="chainico" aria-label="Your chain" title="Your chain"><svg viewBox="0 0 24 24"><path class="b" fill-rule="evenodd" d="M7.33 1.5 L16.67 1.5 Q18.74 1.5 18.74 3.57 L18.74 6.94 C18.87 10.06 19.32 13.3 19.26 16.02 C19.19 19.91 18.22 22.18 16.28 22.5 L7.72 22.5 C5.78 22.18 4.81 19.91 4.74 16.02 C4.68 13.3 5.13 10.06 5.26 6.94 L5.26 3.57 Q5.26 1.5 7.33 1.5 Z M8.63 3.57 L15.37 3.57 Q16.41 3.57 16.41 4.61 L16.41 7.72 Q16.41 8.82 15.31 8.89 C14.07 8.91 13.17 8.63 12.0 8.63 C10.83 8.63 9.93 8.91 8.69 8.89 Q7.59 8.82 7.59 7.72 L7.59 4.61 Q7.59 3.57 8.63 3.57 Z"/><text id="chainNum" x="12" y="19.41" text-anchor="middle"></text></svg></button>
+        <button id="icoHealth" aria-label="Health and privacy" title="Health & privacy"><svg viewBox="0 0 24 24"><path d="M9 3.5h6v5.5h5.5v6H15v5.5H9V15H3.5V9H9z"/></svg></button>
+        <button id="icoAbout" aria-label="About this site" title="About this site"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V6A1.5 1.5 0 0 1 5 4.5z"/></svg></button>
+        <button id="icoShare" aria-label="Share this site" title="Share this site"><svg viewBox="0 0 24 24"><path d="M8.5 9.5H6.5v11h11v-11h-2"/><path d="M12 14.5V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/></svg></button>
+      </div>
   </div>
 
   <div class="controls">
@@ -352,6 +366,15 @@
   };
   // user data: overrides {id:{on,freq,mode}} + custom [{...}]
   let user = store.get("kb45_lib_v2",{over:{},custom:[]});
+  // ---------- Anonymous usage counts ----------
+  // The phone already knows whether it has been here before, so we can count returning visitors
+  // without cookies or IDs. Events carry only coarse labels (workout type, a streak range).
+  const RETURNING = (()=>{ try{ return !!localStorage.getItem("kb45_set_v2"); }catch(e){ return false; } })();
+  function track(name,data){
+    let tries=0; const go=()=>{ try{ if(window.umami && umami.track){ umami.track(name,data); return; } }catch(e){ return; }
+      if(++tries<20) setTimeout(go,500); };
+    go(); }
+  const streakRange=n=> n<=1 ? "1" : n<7 ? "2-6" : n<30 ? "7-29" : n<100 ? "30-99" : "100+";
   let settings = store.get("kb45_set_v2",{len:45,int:45,easy:false,voice:true,beep:true,seed:1});
   if(!settings.program) settings.program = settings.easy ? "easy" : "regular";
   if(!settings.cad) settings.cad="2-1-3"; if(!settings.sets) settings.sets=6; if(!settings.sgRounds) settings.sgRounds=10;
@@ -372,6 +395,7 @@
     else { settings.len=o.len||45; settings.int=o.int||45; }
     fixRounds(); }
   loadOpts(settings.program);
+  track("visit",{type: RETURNING ? "returning" : "new"});
 
   function library(){
     return DEFAULTS.concat(user.custom).map(x=>{
@@ -516,7 +540,10 @@
       ol.appendChild(li);
     });
   }
-  function renderHead(){
+  function renderChainIcon(){ try{ const n=streak(), t=$("chainNum"); t.textContent = n>999 ? "+" : n ? String(n) : "";
+      t.style.fontSize = n>999 ? "11px" : n>=100 ? "6.1px" : "";
+      const tip = n ? `${n}-day workout streak` : "No workout streak yet"; $("icoChain").title=tip; $("icoChain").setAttribute("aria-label",tip); }catch(e){} }
+  function renderHead(){ renderChainIcon();
     const p=PROG();
     $("sub").textContent = cooling ? "Cool-down" : p==="cps" ? "Clean · Press · Squat "+(settings.cad||"2-1-3") : PROG_NAMES[p];
     $("progSel").value=p; $("cadSel").value=settings.cad||"2-1-3"; $("setsSel").value=String(settings.sets||6); $("sgSel").value=String(settings.sgRounds||10);
@@ -537,7 +564,8 @@
   const SPONSORS=[
     {label:"Kettlebell Catalyst", text:"One bell. Every day.", sub:"kbcatalyst.ca", house:true},
     {label:"Kettlebell Catalyst", text:"Know someone with a kettlebell?", sub:"Send them kbcatalyst.ca", house:true},
-    {label:"Kettlebell Catalyst", text:"Keep the chain going.", sub:"Share today's workout when you finish", house:true}
+    {label:"Kettlebell Catalyst", text:"Keep the chain going.", sub:"Share today's workout when you finish", house:true},
+    {label:"Kettlebell Catalyst", text:"Free, and staying that way.", sub:"Enjoying it? Buy me a coffee ☕", house:true, url:"https://ko-fi.com/kbcatalyst"}
   ];
   let LINES=[
       "Showing up and getting started is the workout. Everything else is a bonus.",
@@ -619,7 +647,7 @@
   }
   function showQuote(q){
     const box=$("quoteBox"); box.classList.toggle("sponsor",!!q.sponsor); box.classList.toggle("house",!!q.house);
-    box.onclick = q.house ? openShare : null;
+    box.onclick = q.house ? (q.url ? ()=>{ track("kofi",{from:"panel"}); window.open(q.url,"_blank","noopener"); } : openShare) : null;
     $("qLabel").textContent=q.label;
     const t=$("qText"); t.textContent="";
     if(q.house){   // like the sticker: app icon on the left, two lines of text beside it
@@ -702,6 +730,7 @@
     const intro = P_==="sg" ? `Swings and get-ups. A short warm-up, then ${settings.sgRounds||10} sets of swings every ${IV()} seconds, followed by ${settings.sgRounds||10} get-ups, one every minute.`
                : P_==="cps" ? `Clean, press, squat, ${IV()===60?"every minute on the minute":"every "+IV()+" seconds"}. A short warm-up, then ${settings.sets||6} rounds of ${(settings.cad||"2-1-3").split("-").join(", ")}.`
                : `${settings.len} minute ${P_==="easy"?"easy":"full"} workout. ${plan.length} intervals, ${IV()} seconds each.`;
+    track("workout-start",{workout:PROG()});
     voiceUnlocked=true;                     // the first phrase below is spoken inside this tap
     prerolling=true; running=true; lastBeep=null;
     endAt=performance.now()+15000;
@@ -739,7 +768,7 @@
   }
   function finishCooldown(){
     running=false; clearInterval(timer); releaseWake(); setTimeout(runUI,0); setTimeout(stopPlaybackMode,4000);
-    beep(990,0.15); { const n=streak(); say("Cool-down complete. "+(n>1 ? `That is ${n} workouts in a row.` : "That's day one of your chain.")+" See you tomorrow."); }
+    track("cooldown-finish"); beep(990,0.15); { const n=streak(); say("Cool-down complete. "+(n>1 ? `That is ${n} workouts in a row.` : "That's day one of your chain.")+" See you tomorrow."); }
     cooling=false; idx=-1; rebuild(); renderHead(); renderList();
     $("nowCard").style.display="none"; $("finish").style.display="block";
     $("finishNote").textContent="Cool-down done. That's the whole session. "+$("finishNote").textContent.replace(/^Cool-down done\. That's the whole session\. /,"");
@@ -752,7 +781,7 @@
     running=false; clearInterval(timer); releaseWake();
     beep(990,0.15); setTimeout(()=>beep(1320,0.3),180); say("Workout complete. Nice work."); setTimeout(stopPlaybackMode,4000);
     $("nowCard").style.display="none"; $("finish").style.display="block";
-    markDone();
+    markDone(); track("workout-finish",{workout:PROG(), streak:streakRange(streak())});
     $("finishNote").textContent=`${plan.length} intervals · ${fmt(total())}. Day ${streak()} of your chain.`;
     $("finishChain").textContent=chainRow(14);
     showQuote({label:"Done", text:"That's one more link in the chain. See you tomorrow."});
@@ -979,9 +1008,15 @@
     if(Array.isArray(settings.done)){ settings.done.forEach(k=>{ if(!settings.hist[k]) settings.hist[k]={b:1,m:0}; }); delete settings.done; saveSettings(); }
     return settings.hist;
   }
-  function trimHist(){ const h=hist(), keys=Object.keys(h).sort(); keys.slice(0,Math.max(0,keys.length-400)).forEach(k=>delete h[k]); }
+  // Keep up to ~10 years so long chains keep counting. Days older than 60 are slimmed to what the chain needs.
+  function trimHist(){ const h=hist(), keys=Object.keys(h).sort(), cut=dkey(addDays(new Date(),-60));
+    keys.slice(0,Math.max(0,keys.length-3700)).forEach(k=>delete h[k]);
+    keys.forEach(k=>{ const e=h[k]; if(e && k<cut && (e.t||e.n!=null||e.h!=null)){ h[k]={b:e.b, m:e.m}; if(e.x) h[k].x=e.x; } }); }
   function doneSet(){ return new Set(Object.keys(hist())); }
-  function markDone(){ const now=new Date(); hist()[dkey(now)]={b:bandOf(now.getHours()), m:settings.len, h:now.getHours(), n:plan.length, e:PROG()==="easy"?1:0, t:progLabel()}; trimHist(); saveSettings(); }
+  // A second workout the same day still counts once for the chain; its time-of-day band is kept in x so the card can show both
+  function markDone(){ const now=new Date(), k=dkey(now), prev=hist()[k], b=bandOf(now.getHours());
+    const x = prev ? [...new Set([prev.b].concat(prev.x||[]))].filter(v=>v!==b && v>=0 && v<=3) : [];
+    hist()[k]={b, x:x.length?x:undefined, m:settings.len, h:now.getHours(), n:plan.length, e:PROG()==="easy"?1:0, t:progLabel()}; trimHist(); saveSettings(); renderChainIcon(); }
   // What the share card and text describe: today's finished workout if there is one, otherwise a preview using the current time
   function shareInfo(){
     const now=new Date(), e=hist()[dkey(now)];
@@ -996,7 +1031,7 @@
   function streak(){
     const s=doneSet(); let d=new Date(); if(!s.has(dkey(d))) d=addDays(d,-1);   // today not done yet: count up to yesterday
     let count=0, misses=0;
-    for(let i=0;i<800;i++){
+    for(let i=0;i<4000;i++){
       if(s.has(dkey(d))){ count++; misses=0; }
       else { misses++; if(!settings.grace || misses>1) break; }
       d=addDays(d,-1);
@@ -1028,7 +1063,7 @@
         sel.value= e ? String(e.b) : "";
         const len=el("select"); LENS.forEach(m=>len.append(el("option",{value:String(m),textContent:m+" min"})));
         len.value= String(e && e.m ? (LENS.includes(e.m)?e.m:45) : settings.len); len.disabled=!e;
-        const save=()=>{ const h=hist(); if(sel.value===""){ delete h[k]; len.disabled=true; } else { h[k]={b:+sel.value, m:+len.value}; len.disabled=false; } saveSettings(); sum.textContent="Day "+streak()+" 🔥  "+chainRow(14); };
+        const save=()=>{ const h=hist(); if(sel.value===""){ delete h[k]; len.disabled=true; } else { h[k]={b:+sel.value, m:+len.value}; len.disabled=false; } saveSettings(); renderChainIcon(); sum.textContent="Day "+streak()+" 🔥  "+chainRow(14); };
         sel.onchange=save; len.onchange=save;
         li.append(lab, sel, len); list.append(li);
       }
@@ -1052,13 +1087,18 @@
   }
 
   // ---------- Health disclaimer ----------
-  $("icoHealth").onclick=()=>openModal("Health disclaimer",b=>{
+  $("icoHealth").onclick=()=>openModal("Health & privacy",b=>{
     b.append(
       P("Kettlebell Catalyst is a workout timer for general fitness. It isn't medical advice and doesn't replace a doctor, physiotherapist or qualified coach."),
       P("Check with your doctor before starting a new exercise routine, especially if you have a health condition or an injury, are pregnant, or haven't exercised in a while."),
       P("Learn each movement with good form and a light bell before using it here, ideally from a qualified coach. Choose a weight you can control for every exercise on your list, and switch off anything you're not comfortable doing."),
       P("Stop right away if you feel pain, dizziness, chest discomfort or unusual shortness of breath."),
-      P("You use Kettlebell Catalyst at your own risk.")
+      P("You use Kettlebell Catalyst at your own risk."),
+      H("Privacy"),
+      P("Your settings, exercise library and workout history stay on this device. They aren't sent anywhere or stored on a server."),
+      P("The site counts anonymous visits and workouts to see how it's used: whether a visit is new or returning, which workout was done, and a rough streak range. Counting is done by Umami, a privacy-friendly analytics service that uses no cookies and collects no personal information. There are no accounts or sign-ups."),
+      P("When you share a workout, the link contains your workout settings and exercise choices so a friend can use them. Your chain history is only included if you make a setup code to move it to another device."),
+      P("Links to other sites, like Bells of Steel, Greg Brookes and Mark Wildman, are covered by those sites' own privacy policies.")
     );
   });
 
@@ -1074,14 +1114,18 @@
       P("There is no app to install, although the site does save your preferences on your device and records your workout frequency. Site settings are device specific."),
       P("Feel free to experiment and make it yours: use the exercise library to emphasize exercises you enjoy, or banish exercises you don't. Add your own exercises. Over time, modify the preferred number of reps for each exercise. Even share your workouts on social media or directly with friends by email. Your exercise preferences and workout streak are saved on your device."),
       H("Learning the moves"),
-      el("p",{},"New to kettlebells? Start with Greg Brookes's ",
+      el("p",{},"New to kettlebells? Start with Greg Brookes' ",
         el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"Beginner's Guide to Kettlebell Training",style:"color:var(--accent2)"}),
         ". For how a particular exercise is done, see his ",
         el("a",{href:"https://kettlebellsworkouts.com/kettlebell-exercises/",target:"_blank",rel:"noopener",textContent:"library of 52 kettlebell exercises",style:"color:var(--accent2)"}),"."),
       el("p",{},"Prefer video? ",
         el("a",{href:"https://www.youtube.com/c/MarkWildman",target:"_blank",rel:"noopener",textContent:"Mark Wildman's YouTube channel",style:"color:var(--accent2)"}),
         " has detailed walkthroughs of the swing, get-up, clean and press, and more."),
-      el("p",{className:"ok",textContent:"Version 1.8.1"}),
+      H("Support"),
+      el("p",{},"Kettlebell Catalyst is free, with no accounts or sign-ups. If it helps you keep your chain going, you can ",
+        (()=>{ const a=el("a",{href:"https://ko-fi.com/kbcatalyst",target:"_blank",rel:"noopener",textContent:"buy me a coffee on Ko-fi",style:"color:var(--accent2)"}); a.onclick=()=>track("kofi",{from:"about"}); return a; })(),
+        ". It helps keep it free."),
+      el("p",{className:"ok",textContent:"Version 1.8.2"}),
       H("Questions & feedback")
     );
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
@@ -1091,7 +1135,7 @@
     if(firstRun){
       const hl=el("p",{className:"ok"}); hl.append("New to kettlebells? Please read the ");
       const a=el("a",{href:"#",textContent:"health note",style:"color:var(--accent)"}); a.onclick=e=>{ e.preventDefault(); $("icoHealth").onclick(); };
-      hl.append(a," and Greg Brookes's ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first."); b.append(hl);
+      hl.append(a," and Greg Brookes' ", el("a",{href:GUIDE_URL,target:"_blank",rel:"noopener",textContent:"beginner's guide",style:"color:var(--accent)"})," first."); b.append(hl);
       const go=el("button",{className:"primary",textContent:"Get started"}); go.style.width="100%"; go.style.marginTop="14px"; go.onclick=closeModal;
       b.append(go);
     }
@@ -1118,7 +1162,7 @@
     user={over:p.o||{},custom:(p.c||[]).map(c=>Object.assign({tag:"custom",custom:true,freq:1},c))}; saveUser();
     Object.assign(settings,{len:+p.s.len||45,int:+p.s.int||45,easy:!!p.s.easy,program:p.s.program||(p.s.easy?"easy":"regular"),cad:p.s.cad||"2-1-3",sets:+p.s.sets||6,sgRounds:+p.s.sgRounds||10,seed:+p.s.seed||1,seedDay:todayKey(),scale:p.s.scale!==false}); fixRounds();
     try{ storeOpts(); }catch(e){}
-    if(p.h && typeof p.h==="object"){ const h=hist(); Object.keys(p.h).forEach(k=>{ const e=p.h[k]; if(/^\d{4}-\d\d-\d\d$/.test(k) && e && e.b>=0 && e.b<=3) h[k]={b:+e.b, m:+e.m||0}; }); trimHist(); settings.grace=!!p.g; }
+    if(p.h && typeof p.h==="object"){ const h=hist(); Object.keys(p.h).forEach(k=>{ const e=p.h[k]; if(/^\d{4}-\d\d-\d\d$/.test(k) && e && e.b>=0 && e.b<=3) h[k]={b:+e.b, m:+e.m||0}; if(Array.isArray(e.x)){ const x=e.x.map(Number).filter(v=>v>=0&&v<=3&&v!==+e.b); if(x.length) h[k].x=x; } }); trimHist(); settings.grace=!!p.g; }
     else if(Array.isArray(p.d)){ const h=hist(); p.d.forEach(k=>{ if(/^\d{4}-\d\d-\d\d$/.test(k) && !h[k]) h[k]={b:1,m:0}; }); settings.grace=!!p.g; }
     saveSettings(); try{ $("scaleChk").checked=settings.scale!==false; $("graceChk").checked=!!settings.grace; }catch(e){}
     $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int);
@@ -1153,9 +1197,9 @@
     BANDS.forEach((t,i)=>g.fillText(t,x0-16,y0+i*(ch+rg)+ch*0.6));
     for(let d=0; d<cols; d++){
       const day=addDays(now,-(cols-1-d)), e=h[dkey(day)];
-      for(let k=0;k<4;k++){ g.fillStyle= e && e.b===k ? shade(e.m) : "#232833"; roundRect(g,x0+d*(cw+gap),y0+k*(ch+rg),cw,ch,10); g.fill(); }
+      for(let k=0;k<4;k++){ g.fillStyle= e && (e.b===k || (e.x||[]).includes(k)) ? shade(e.m) : "#232833"; roundRect(g,x0+d*(cw+gap),y0+k*(ch+rg),cw,ch,10); g.fill(); }
       g.textAlign="center"; g.font=F(500,28); g.fillStyle="#8b93a3";
-      g.fillText("SMTWTFS"[day.getDay()],x0+d*(cw+gap)+cw/2,y0+4*(ch+rg)+30);
+      g.fillText("SMTWRFS"[day.getDay()],x0+d*(cw+gap)+cw/2,y0+4*(ch+rg)+30);
     }
     // 4: note, brand, tagline
     g.textAlign="center";
@@ -1214,7 +1258,7 @@
     const hidden=el("textarea",{rows:1}); hidden.style.position="absolute"; hidden.style.left="-9999px";
     copyBtn.onclick=()=>{ hidden.value=box.textContent; copyText(box.textContent,copyBtn,hidden); };
     shareBtn.onclick=async()=>{
-      const text=box.textContent;
+      const text=box.textContent; track("share");
       if(navigator.share){
         try{
           let files=[]; try{ const blob=await (await fetch(img.src)).blob(); files=[new File([blob],"kb-catalyst.png",{type:"image/png"})]; }catch(e){}
@@ -1262,6 +1306,7 @@
   $("guestExit").onclick=()=>endGuest(false);
   $("fixChainBtn").onclick=openChainEditor;
   $("fixChainFinish").onclick=openChainEditor;
+  $("icoChain").onclick=openChainEditor;
 
   // ---------- Open a shared workout from the link ----------
   function isReturningUser(){ return Object.keys(user.over||{}).length>0 || (user.custom||[]).length>0 || Object.keys(hist()).length>0; }
