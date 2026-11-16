@@ -1044,12 +1044,12 @@
   }
   function chainRow(n){ const h=hist(); let out=""; for(let i=n-1;i>=0;i--){ const e=h[dkey(addDays(new Date(),-i))]; out+= e ? BAND_EMOJI[e.b||0] : "⬜"; } return out; }
   function partOfDay(h){ return h<7?"Early-morning":h<12?"Morning":h<17?"Afternoon":h<21?"Evening":"Late-night"; }   // lines up with the 4 chain bands
-  function shareText(note){
+  function shareText(note,withWorkout){
     const n=streak(), info=shareInfo();
     const date=info.date.toLocaleDateString("en-CA",{weekday:"short",month:"short",day:"numeric"});
     const lines=[ (n ? `Kettlebell Catalyst · Day ${n} 🔥` : "Kettlebell Catalyst · starting my chain"), chainRow(14), `${info.label} · ${date}, ${info.when} workout` ];
     if(note) lines.push(`"${note}"`);
-    lines.push(HOME+"#"+exportCode(false));
+    lines.push(withWorkout ? HOME+"#"+exportCode(false) : HOME);   // the site, or a link that opens this exact workout
     return lines.join("\n");
   }
 
@@ -1112,7 +1112,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.8.7";
+  const APP_VERSION = "1.8.8";
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
   function deviceInfo(){
@@ -1290,14 +1290,21 @@
     const note=el("input",{type:"text",maxLength:40,placeholder:"Add a note (optional), e.g. killer sesh"}); note.style.width="100%";
     const box=el("div",{className:"sharebox"});
     const img=el("img",{alt:"Kettlebell Catalyst share card"});
-    const refresh=()=>{ cardNote=note.value.trim(); box.textContent=shareText(cardNote); try{ img.src=shareImage(); img.hidden=false; }catch(e){ img.hidden=true; } };
+    const wo=el("input",{type:"checkbox",checked:!!settings.shareWorkout}); wo.style.marginRight="8px";
+    const woLbl=el("label",{className:"ok"}); woLbl.style.display="flex"; woLbl.style.alignItems="center"; woLbl.style.margin="8px 0";
+    woLbl.append(wo, "Include my workout, so friends can try it");
+    wo.onchange=()=>{ settings.shareWorkout=wo.checked; saveSettings(); refresh(); };
+    img.style.cursor="pointer"; img.title="Tap to share";
+    const refresh=()=>{ cardNote=note.value.trim(); box.textContent=shareText(cardNote,wo.checked); try{ img.src=shareImage(); img.hidden=false; }catch(e){ img.hidden=true; } };
     note.oninput=refresh; refresh();
     const shareBtn=el("button",{className:"small primary",textContent:"Share…"});
     const copyBtn=el("button",{className:"small",textContent:"Copy text"});
     const hidden=el("textarea",{rows:1}); hidden.style.position="absolute"; hidden.style.left="-9999px";
-    copyBtn.onclick=()=>{ hidden.value=box.textContent; copyText(box.textContent,copyBtn,hidden); };
+    copyBtn.onclick=()=>{ track("share",{how:"copy", workout:wo.checked?"yes":"no"}); hidden.value=box.textContent; copyText(box.textContent,copyBtn,hidden); };
+    let shareFrom="button";
+    img.onclick=()=>{ shareFrom="card"; shareBtn.onclick(); };
     shareBtn.onclick=async()=>{
-      const text=box.textContent; track("share");
+      const text=box.textContent; track("share",{how:shareFrom, workout:wo.checked?"yes":"no"}); shareFrom="button";
       if(navigator.share){
         try{
           let files=[]; try{ const blob=await (await fetch(img.src)).blob(); files=[new File([blob],"kb-catalyst.png",{type:"image/png"})]; }catch(e){}
@@ -1309,8 +1316,8 @@
       hidden.value=text; copyText(text,shareBtn,hidden);   // no share sheet here: copy instead
       shareBtn.textContent="Copied. Paste it anywhere"; setTimeout(()=>shareBtn.textContent="Share…",2500);
     };
-    b.append(note, box, el("div",{className:"btnrow"},shareBtn,copyBtn), hidden,
-      P("On a phone, long-press the card to save it for Instagram."), img);
+    b.append(img, P("Tap the card or Share… to send it with a link. Long-press the card to save just the picture, e.g. for Instagram."),
+      note, woLbl, el("div",{className:"btnrow"},shareBtn,copyBtn), box, hidden);
 
     // Install
     b.append(H("Install on this device")); installSteps(b);
