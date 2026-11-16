@@ -1304,7 +1304,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.9.21";
+  const APP_VERSION = "1.9.22";
   try{ $("verTag").textContent="v"+APP_VERSION; }catch(e){}
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
@@ -1599,8 +1599,14 @@
     $("lenSel").value=String(settings.len); $("intSel").value=String(settings.int); $("scaleChk").checked=settings.scale!==false;
     $("guestBar").hidden=true; if(!quiet) reset();
   }
+  let deepLink=false;
   function checkHash(){
-    const h=location.hash.replace(/^#/,""); if(!/^w[a-z2-7]+$/.test(h)) return;
+    const h=location.hash.replace(/^#/,"");
+    if(/^bells?$/i.test(h)){                    // kbcatalyst.ca/#bells opens "Choosing your bell"
+      deepLink=true; try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
+      track("bell-guide-link"); openBellGuide(); return;
+    }
+    if(!/^w[a-z2-7]+$/.test(h)) return;
     const p=parseCode(h); if(!p) return;
     const clear=()=>{ try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){ try{ location.hash=""; }catch(_){} } };
     const n=Math.round(p.s.len*60/p.s.int), pg=p.s.program||(p.s.easy?"easy":"regular");
@@ -1684,7 +1690,7 @@
 
   reset();
   checkHash();
-  try{ if(!localStorage.getItem("kb45_welcomed")){ localStorage.setItem("kb45_welcomed","1"); if($("modal").hidden) openAbout(true); } }catch(e){}
+  try{ if(!deepLink && !localStorage.getItem("kb45_welcomed")){ localStorage.setItem("kb45_welcomed","1"); if($("modal").hidden) openAbout(true); } }catch(e){}
   if(/^https?:$/.test(location.protocol) && !/claude/i.test(location.hostname)) loadLists();
   // Offline support: only on the real site (kbcatalyst.ca or GitHub Pages), never inside a preview frame
   try{ if("serviceWorker" in navigator && /kbcatalyst\.ca$|github\.io$/i.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){}
