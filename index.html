@@ -1304,7 +1304,7 @@
 
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
-  const APP_VERSION = "1.9.19";
+  const APP_VERSION = "1.9.20";
   try{ $("verTag").textContent="v"+APP_VERSION; }catch(e){}
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
@@ -1387,7 +1387,10 @@
         el("a",{href:"https://kettlebellsworkouts.com/kettlebell-exercises/",target:"_blank",rel:"noopener",textContent:"52-exercise library",style:"color:var(--accent2)"}),"."),
       el("p",{},"Prefer video? ",
         el("a",{href:"https://www.youtube.com/c/MarkWildman",target:"_blank",rel:"noopener",textContent:"Mark Wildman's YouTube channel",style:"color:var(--accent2)"}),
-        " walks through the key lifts.")
+        " walks through the key lifts."),
+      el("p",{},"The r/kettlebell community's ",
+        el("a",{href:"https://www.reddit.com/r/kettlebell/comments/1dugui2/new_to_kettlebells_start_here_updated_for_2024/",target:"_blank",rel:"noopener",textContent:"New to kettlebells? Start here",style:"color:var(--accent2)"}),
+        " post answers the common questions.")
     );
     b.append(H("Questions & feedback"));
     if(FEEDBACK){ const isLink=/^https?:/.test(FEEDBACK);
