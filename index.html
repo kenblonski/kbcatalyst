@@ -40,6 +40,7 @@
   header>div:first-child{flex:1;min-width:0}
   .prog{color:var(--muted,#9aa0a6);font-size:14px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .icons{display:flex;gap:6px;flex:none}
+  .ver{align-self:flex-start;color:var(--muted);opacity:.55;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;padding-top:4px;flex:none}
   .stage{display:flex;gap:8px;align-items:flex-start}
   .stagemain{flex:1;min-width:0}
   .icons.rail{flex-direction:column;gap:8px}
@@ -176,6 +177,7 @@
       <div class="sub"><span id="meta">0:00 / 45:00</span></div>
       <div class="prog" id="sub">Full day</div>
     </div>
+    <div class="ver" id="verTag" title="App version"></div>
   </header>
 
   <div class="warnbox" style="margin:0 0 10px" id="guestBar" hidden>Guest workout from a shared link. Your own setup is untouched. <button class="small" id="guestExit">Back to my workout</button></div>
@@ -1190,6 +1192,7 @@
   // ---------- About & feedback ----------
   const GUIDE_URL = "https://kettlebellsworkouts.com/beginners-guide-to-kettlebell-training/";
   const APP_VERSION = "1.9";
+  try{ $("verTag").textContent="v"+APP_VERSION; }catch(e){}
   const FEEDBACK = "hello@kbcatalyst.ca";
   // Fill in device details so people don't have to know them; nothing is sent unless they choose to send the email
   function deviceInfo(){
